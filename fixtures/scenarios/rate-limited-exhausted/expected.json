@@ -1,0 +1,6 @@
+{
+  "error": "rateLimited",
+  "requestCounts": {
+    "/project/v1/projects/3000000000000000001/posts": 5
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "rule": "docs/dooray-api.md 긴급도와 정렬 — 정렬, 그리고 구현 세부 규칙의 정렬 동률",
+  "input": "now, timeZone, tasks(id, priority, dueDate|null, updatedAt). 입력 순서는 일부러 섞여 있다.",
+  "cases": [
+    {
+      "name": "긴급도 순서, 같은 긴급도 안에서는 마감 순, 동률은 우선순위 → 수정 시각 → id",
+      "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul",
+      "tasks": [
+        { "id": "9",  "priority": "low",     "dueDate": null,                   "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "8",  "priority": "normal",  "dueDate": "2026-11-21T00:00:00Z", "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "7",  "priority": "high",    "dueDate": null,                   "updatedAt": "2026-11-10T01:00:00Z" },
+        { "id": "6",  "priority": "normal",  "dueDate": "2026-11-19T09:00:00Z", "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "5",  "priority": "highest", "dueDate": "2026-11-19T09:00:00Z", "updatedAt": "2026-11-18T01:00:00Z" },
+        { "id": "4",  "priority": "normal",  "dueDate": "2026-11-17T09:00:00Z", "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "3",  "priority": "normal",  "dueDate": "2026-11-18T09:00:00Z", "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "12", "priority": "normal",  "dueDate": "2026-11-19T09:00:00Z", "updatedAt": "2026-11-19T01:00:00Z" },
+        { "id": "2",  "priority": "low",     "dueDate": null,                   "updatedAt": "2026-11-19T05:00:00Z" },
+        { "id": "1",  "priority": "low",     "dueDate": null,                   "updatedAt": "2026-11-19T01:00:00Z" }
+      ],
+      "expect": ["4", "3", "5", "6", "12", "8", "7", "2", "1", "9"]
+    }
+  ],
+  "explain": {
+    "4, 3": "overdue, 마감 이른 순",
+    "5, 6, 12": "dueToday 같은 마감. 5는 highest. 6과 12는 우선순위·수정 시각까지 같아 id를 숫자로 비교 (6 < 12; 문자열 비교라면 12가 먼저)",
+    "8": "upcoming",
+    "7, 2, 1, 9": "noDue: high 먼저, 그다음 low 셋은 수정 시각 최근 순 (2), 같은 시각인 1과 9는 id 순"
+  }
+}

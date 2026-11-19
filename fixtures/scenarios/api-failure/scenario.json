@@ -1,0 +1,33 @@
+{
+  "description": "프로젝트 목록이 HTTP 200으로 오지만 header.isSuccessful이 false다. api 오류로 끝난다.",
+  "tags": [],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-failed.json"
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

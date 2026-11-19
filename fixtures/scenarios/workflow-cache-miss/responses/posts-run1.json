@@ -1,0 +1,36 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000101",
+      "subject": "코드 리뷰 반영",
+      "project": {
+        "id": "3000000000000000001",
+        "code": "FE"
+      },
+      "number": 1301,
+      "priority": "normal",
+      "workflowClass": "registered",
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "users": {
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001"
+            },
+            "workflow": {
+              "id": "4000000000000000012"
+            }
+          }
+        ]
+      },
+      "dueDate": "2026-11-19T09:00:00Z"
+    }
+  ],
+  "totalCount": 1
+}

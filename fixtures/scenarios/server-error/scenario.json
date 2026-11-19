@@ -1,0 +1,58 @@
+{
+  "description": "업무 호출이 502를 준다. 건너뛰지 않고 동기화 전체가 http 오류로 끝난다.",
+  "tags": [
+    "e2e"
+  ],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 502
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

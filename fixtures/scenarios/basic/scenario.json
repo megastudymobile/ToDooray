@@ -1,0 +1,131 @@
+{
+  "description": "프로젝트 네 개. 멤버 담당과 그룹 담당, 내 몫만 closed, 내 몫 backlog, 모르는 워크플로우 ID, 빈 프로젝트, 네 긴급도가 모두 들어 있다.",
+  "tags": [
+    "e2e"
+  ],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/workflows-3000000000000000001.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/workflows-3000000000000000002.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000003/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/workflows-3000000000000000003.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000004/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/workflows-3000000000000000004.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000001-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000002-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000003/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000003-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000004/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000004-0.json"
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

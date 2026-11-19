@@ -1,0 +1,180 @@
+{
+  "description": "size 2로 나눠 받는다. 프로젝트 목록은 두 페이지다. FE는 업무 다섯 건이 세 페이지에 온다. APP은 totalCount가 99로 틀렸고 둘째 페이지가 비어 거기서 멈춘다. OPS는 읽는 사이 한 건이 밀려 두 페이지에 겹쳐 오고, id로 중복을 없앤다.",
+  "tags": [],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "pageSize": 2,
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "1",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-1.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000002.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000003/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000003.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-fe-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "1",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-fe-1.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "2",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-fe-2.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-app-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "1",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-app-1.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000003/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-ops-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000003/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "1",
+        "size": "2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-ops-1.json"
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

@@ -1,0 +1,35 @@
+{
+  "description": "속한 프로젝트가 없다. 빈 목록으로 성공한다.",
+  "tags": [
+    "e2e"
+  ],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

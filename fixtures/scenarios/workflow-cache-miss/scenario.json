@@ -1,0 +1,66 @@
+{
+  "description": "두 번째 동기화에서 캐시에 없는 워크플로우 ID가 나타난다. 워크플로우를 한 번 다시 받아 내 몫을 working으로 판정한다. 다시 받지 않으면 규칙 4로 registered가 되어 실패한다.",
+  "tags": [],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "runs": 2,
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/workflows-v1.json"
+        },
+        {
+          "status": 200,
+          "body": "responses/workflows-v2.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000001/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-run1.json"
+        },
+        {
+          "status": 200,
+          "body": "responses/posts-run2.json"
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

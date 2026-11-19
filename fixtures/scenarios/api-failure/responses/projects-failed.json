@@ -1,0 +1,8 @@
+{
+  "header": {
+    "isSuccessful": false,
+    "resultCode": -1,
+    "resultMessage": "일시적인 오류"
+  },
+  "result": null
+}

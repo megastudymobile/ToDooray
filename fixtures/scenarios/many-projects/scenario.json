@@ -1,0 +1,189 @@
+{
+  "description": "프로젝트 여섯 개가 응답마다 50ms씩 걸린다. 동시에 처리하는 프로젝트는 네 개를 넘지 않는다.",
+  "tags": [],
+  "now": "2026-11-19T12:00:00+09:00",
+  "timeZone": "Asia/Seoul",
+  "token": "test-token",
+  "requests": [
+    {
+      "path": "/common/v1/members/me",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/members-me.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects",
+      "query": {
+        "member": "me",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/projects-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000101/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000101/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000101-0.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000102/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000102/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000102-0.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000103/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000103/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000103-0.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000104/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000104/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000104-0.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000105/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000105/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000105-0.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000106/workflows",
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/workflows-3000000000000000001.json",
+          "delayMs": 50
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000106/posts",
+      "query": {
+        "toMemberIds": "1000000000000000001",
+        "postWorkflowClasses": "registered,working",
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/posts-3000000000000000106-0.json",
+          "delayMs": 50
+        }
+      ]
+    }
+  ],
+  "expect": "expected.json"
+}

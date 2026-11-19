@@ -1,0 +1,36 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000211",
+      "subject": "마감 형식 오류",
+      "project": {
+        "id": "3000000000000000001",
+        "code": "FE"
+      },
+      "number": 1411,
+      "priority": "normal",
+      "workflowClass": "registered",
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "users": {
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001"
+            },
+            "workflow": {
+              "id": "4000000000000000011"
+            }
+          }
+        ]
+      },
+      "dueDate": "내일까지"
+    }
+  ],
+  "totalCount": 1
+}

@@ -1,0 +1,41 @@
+{
+  "tasks": [
+    {
+      "id": "5000000000000000706",
+      "key": "P6-6",
+      "urgency": "noDue",
+      "state": "registered"
+    },
+    {
+      "id": "5000000000000000705",
+      "key": "P5-5",
+      "urgency": "noDue",
+      "state": "registered"
+    },
+    {
+      "id": "5000000000000000704",
+      "key": "P4-4",
+      "urgency": "noDue",
+      "state": "registered"
+    },
+    {
+      "id": "5000000000000000703",
+      "key": "P3-3",
+      "urgency": "noDue",
+      "state": "registered"
+    },
+    {
+      "id": "5000000000000000702",
+      "key": "P2-2",
+      "urgency": "noDue",
+      "state": "registered"
+    },
+    {
+      "id": "5000000000000000701",
+      "key": "P1-1",
+      "urgency": "noDue",
+      "state": "registered"
+    }
+  ],
+  "maxConcurrentRequests": 4
+}

@@ -1,0 +1,14 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "3000000000000000001",
+      "code": "FE"
+    }
+  ],
+  "totalCount": 1
+}

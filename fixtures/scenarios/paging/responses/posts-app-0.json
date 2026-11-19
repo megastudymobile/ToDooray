@@ -1,0 +1,62 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000501",
+      "subject": "총 개수가 틀린 업무 1",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP"
+      },
+      "number": 101,
+      "priority": "normal",
+      "workflowClass": "registered",
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "users": {
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001"
+            },
+            "workflow": {
+              "id": "4000000000000000021"
+            }
+          }
+        ]
+      },
+      "dueDate": "2026-12-01T01:00:00Z"
+    },
+    {
+      "id": "5000000000000000502",
+      "subject": "총 개수가 틀린 업무 2",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP"
+      },
+      "number": 102,
+      "priority": "normal",
+      "workflowClass": "registered",
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "users": {
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001"
+            },
+            "workflow": {
+              "id": "4000000000000000021"
+            }
+          }
+        ]
+      },
+      "dueDate": "2026-12-02T01:00:00Z"
+    }
+  ],
+  "totalCount": 99
+}

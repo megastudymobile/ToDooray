@@ -1,0 +1,16 @@
+{
+  "rule": "docs/dooray-api.md 긴급도와 정렬 — 긴급도 표",
+  "input": "now(오프셋 포함 ISO 8601), timeZone(IANA), dueDate(UTC ISO 8601 또는 null)",
+  "cases": [
+    { "name": "1초 전 마감은 지남",            "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-19T02:59:59Z", "expect": "overdue" },
+    { "name": "지금 마감은 아직 오늘 마감",      "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-19T03:00:00Z", "expect": "dueToday" },
+    { "name": "오늘 23:59:59는 오늘 마감",      "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-19T14:59:59Z", "expect": "dueToday" },
+    { "name": "내일 00:00은 예정",             "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-19T15:00:00Z", "expect": "upcoming" },
+    { "name": "오늘 00:00은 이미 지남",          "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-18T15:00:00Z", "expect": "overdue" },
+    { "name": "어제 18:00은 지남",             "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-18T09:00:00Z", "expect": "overdue" },
+    { "name": "마감 없음",                    "now": "2026-11-19T12:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": null,                   "expect": "noDue" },
+    { "name": "LA 기준 같은 날 23:00",          "now": "2026-11-19T20:00:00-08:00", "timeZone": "America/Los_Angeles", "dueDate": "2026-11-20T07:00:00Z", "expect": "dueToday" },
+    { "name": "LA 기준 다음 날 01:00",          "now": "2026-11-19T20:00:00-08:00", "timeZone": "America/Los_Angeles", "dueDate": "2026-11-20T09:00:00Z", "expect": "upcoming" },
+    { "name": "같은 순간, 서울 기준으로는 오늘 18:00", "now": "2026-11-20T13:00:00+09:00", "timeZone": "Asia/Seoul", "dueDate": "2026-11-20T09:00:00Z", "expect": "dueToday" }
+  ]
+}

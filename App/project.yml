@@ -1,0 +1,60 @@
+# XcodeGen spec for the .app bundle. `make app` generates App/MegaMind.xcodeproj and
+# App/Info.plist from this file. Both are git-ignored. All code lives in the root package,
+# and the app target is the one file in Shell/.
+name: MegaMind
+options:
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+packages:
+  MegaMindPackage:
+    path: ..
+targets:
+  MegaMind:
+    type: application
+    platform: macOS
+    sources:
+      - path: Shell
+    dependencies:
+      - package: MegaMindPackage
+        product: MegaMindApp
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: MegaMind
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: ko
+        LSUIElement: true
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSAppTransportSecurity:
+          # Plain http stays limited to loopback addresses, which the mock server uses.
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        # Placeholder. Fix it before the first teammate installs the app: the Keychain item,
+        # the login item and UserDefaults are all keyed on it.
+        MEGAMIND_BUNDLE_ID: com.megamind.MegaMind
+        PRODUCT_BUNDLE_IDENTIFIER: $(MEGAMIND_BUNDLE_ID)$(MEGAMIND_BUNDLE_ID_SUFFIX)
+        PRODUCT_NAME: MegaMind
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "6.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_APP_SANDBOX: NO
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+      configs:
+        Debug:
+          # A Debug build keeps its own Keychain item, defaults and login item, apart from
+          # an installed Release build.
+          MEGAMIND_BUNDLE_ID_SUFFIX: .debug
+schemes:
+  MegaMind:
+    build:
+      targets:
+        MegaMind: all
+    run:
+      config: Debug
+    archive:
+      config: Release

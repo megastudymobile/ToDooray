@@ -2,5 +2,7 @@
 build/
 DerivedData/
 *.xcodeproj/
+App/Info.plist
 .DS_Store
 prototype/**/shots/
+__pycache__/

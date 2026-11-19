@@ -1,0 +1,3 @@
+import MegaMindApp
+
+MegaMind.run()

@@ -1,0 +1,244 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000004",
+      "subject": "디자인 리뷰 반영",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP",
+        "projectCategoryId": null
+      },
+      "taskNumber": "APP/88",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": true,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 88,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000021",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000021",
+        "name": "할 일"
+      },
+      "dueDate": "2026-11-19T09:00:00Z"
+    },
+    {
+      "id": "5000000000000000005",
+      "subject": "API 문서 정리",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP",
+        "projectCategoryId": null
+      },
+      "taskNumber": "APP/91",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": true,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 91,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000022",
+              "name": "진행 중"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "working",
+      "workflow": {
+        "id": "4000000000000000022",
+        "name": "진행 중"
+      },
+      "dueDate": "2026-11-20T01:00:00Z"
+    },
+    {
+      "id": "5000000000000000006",
+      "subject": "아이디어 정리",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP",
+        "projectCategoryId": null
+      },
+      "taskNumber": "APP/95",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 95,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000020",
+              "name": "대기"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000021",
+        "name": "할 일"
+      }
+    },
+    {
+      "id": "5000000000000000007",
+      "subject": "푸시 알림 문구 수정",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP",
+        "projectCategoryId": null
+      },
+      "taskNumber": "APP/97",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": true,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 97,
+      "priority": "low",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000021",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000021",
+        "name": "할 일"
+      },
+      "dueDate": "2026-11-19T14:59:59Z"
+    },
+    {
+      "id": "5000000000000000008",
+      "subject": "온보딩 화면 개선",
+      "project": {
+        "id": "3000000000000000002",
+        "code": "APP",
+        "projectCategoryId": null
+      },
+      "taskNumber": "APP/99",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": true,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 99,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000021",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000021",
+        "name": "할 일"
+      },
+      "dueDate": "2026-11-25T09:00:00Z"
+    }
+  ],
+  "totalCount": 5
+}

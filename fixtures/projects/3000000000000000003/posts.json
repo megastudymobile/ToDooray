@@ -1,0 +1,194 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000009",
+      "subject": "주간 보고 작성",
+      "project": {
+        "id": "3000000000000000003",
+        "code": "OPS",
+        "projectCategoryId": null
+      },
+      "taskNumber": "OPS/12",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 12,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000031",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000031",
+        "name": "할 일"
+      }
+    },
+    {
+      "id": "5000000000000000010",
+      "subject": "장비 재고 조사",
+      "project": {
+        "id": "3000000000000000003",
+        "code": "OPS",
+        "projectCategoryId": null
+      },
+      "taskNumber": "OPS/15",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-19T01:00:00Z",
+      "number": 15,
+      "priority": "none",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000031",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000031",
+        "name": "할 일"
+      }
+    },
+    {
+      "id": "5000000000000000011",
+      "subject": "서버 비용 검토",
+      "project": {
+        "id": "3000000000000000003",
+        "code": "OPS",
+        "projectCategoryId": null
+      },
+      "taskNumber": "OPS/17",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-19T02:00:00Z",
+      "number": 17,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000399",
+              "name": "알 수 없음"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000031",
+        "name": "할 일"
+      }
+    },
+    {
+      "id": "5000000000000000012",
+      "subject": "지난 분기 정산",
+      "project": {
+        "id": "3000000000000000003",
+        "code": "OPS",
+        "projectCategoryId": null
+      },
+      "taskNumber": "OPS/9",
+      "closed": true,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 9,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000033",
+              "name": "완료"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "closed",
+      "workflow": {
+        "id": "4000000000000000033",
+        "name": "완료"
+      }
+    }
+  ],
+  "totalCount": 4
+}

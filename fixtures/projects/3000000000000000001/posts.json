@@ -1,0 +1,168 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "5000000000000000001",
+      "subject": "결제 모듈 오류 수정",
+      "project": {
+        "id": "3000000000000000001",
+        "code": "FE",
+        "projectCategoryId": null
+      },
+      "taskNumber": "FE/1203",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": true,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 1203,
+      "priority": "high",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000011",
+              "name": "할 일"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "registered",
+      "workflow": {
+        "id": "4000000000000000011",
+        "name": "할 일"
+      },
+      "dueDate": "2026-11-18T09:00:00Z"
+    },
+    {
+      "id": "5000000000000000002",
+      "subject": "릴리스 노트 검토",
+      "project": {
+        "id": "3000000000000000001",
+        "code": "FE",
+        "projectCategoryId": null
+      },
+      "taskNumber": "FE/1210",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 1210,
+      "priority": "normal",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000001",
+              "name": "김담당"
+            },
+            "workflow": {
+              "id": "4000000000000000013",
+              "name": "완료"
+            }
+          },
+          {
+            "type": "member",
+            "member": {
+              "organizationMemberId": "1000000000000000002",
+              "name": "박등록"
+            },
+            "workflow": {
+              "id": "4000000000000000012",
+              "name": "진행 중"
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "working",
+      "workflow": {
+        "id": "4000000000000000012",
+        "name": "진행 중"
+      }
+    },
+    {
+      "id": "5000000000000000003",
+      "subject": "접근성 점검",
+      "project": {
+        "id": "3000000000000000001",
+        "code": "FE",
+        "projectCategoryId": null
+      },
+      "taskNumber": "FE/1215",
+      "closed": false,
+      "createdAt": "2026-11-10T01:00:00Z",
+      "dueDateFlag": false,
+      "updatedAt": "2026-11-18T01:00:00Z",
+      "number": 1215,
+      "priority": "high",
+      "tags": [],
+      "users": {
+        "from": {
+          "type": "member",
+          "member": {
+            "organizationMemberId": "1000000000000000002",
+            "name": "박등록"
+          }
+        },
+        "to": [
+          {
+            "type": "group",
+            "group": {
+              "projectMemberGroupId": "6000000000000000001",
+              "code": "frontend",
+              "members": [
+                {
+                  "organizationMemberId": "1000000000000000002",
+                  "name": "박등록",
+                  "workflowId": "4000000000000000011"
+                },
+                {
+                  "organizationMemberId": "1000000000000000001",
+                  "name": "김담당",
+                  "workflowId": "4000000000000000012"
+                }
+              ]
+            }
+          }
+        ],
+        "cc": []
+      },
+      "fileIdList": [],
+      "workflowClass": "working",
+      "workflow": {
+        "id": "4000000000000000012",
+        "name": "진행 중"
+      }
+    }
+  ],
+  "totalCount": 3
+}

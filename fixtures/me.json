@@ -1,0 +1,14 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": {
+    "id": "1000000000000000001",
+    "name": "김담당",
+    "userCode": "tester",
+    "locale": "ko_KR",
+    "timezoneName": "Asia/Seoul"
+  }
+}

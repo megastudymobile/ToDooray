@@ -1,0 +1,26 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "3000000000000000001",
+      "code": "FE"
+    },
+    {
+      "id": "3000000000000000002",
+      "code": "APP"
+    },
+    {
+      "id": "3000000000000000003",
+      "code": "OPS"
+    },
+    {
+      "id": "3000000000000000004",
+      "code": "ADMIN"
+    }
+  ],
+  "totalCount": 4
+}

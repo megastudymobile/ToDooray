@@ -1,0 +1,27 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "4000000000000000031",
+      "name": "할 일",
+      "class": "registered",
+      "order": 100
+    },
+    {
+      "id": "4000000000000000032",
+      "name": "진행 중",
+      "class": "working",
+      "order": 200
+    },
+    {
+      "id": "4000000000000000033",
+      "name": "완료",
+      "class": "closed",
+      "order": 400
+    }
+  ]
+}

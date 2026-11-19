@@ -61,6 +61,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// A menu bar manager or a full bar can hide the status item, and then launching the app
+    /// again from Finder, Spotlight or Launchpad is the only way back in.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if model?.state == .needsSetup {
+            settingsWindow?.show()
+        } else {
+            panel?.open()
+        }
+        return false
+    }
+
     private func perform(_ action: PanelAction) {
         panel?.close()
         switch action {

@@ -32,7 +32,11 @@ final class PanelController {
 
     var isOpen: Bool { panel?.isVisible == true }
     var windowNumber: Int? { isOpen ? panel?.windowNumber : nil }
-    var frame: NSRect? { isOpen ? panel?.frame : nil }
+    /// The visible glass, without the transparent shadow margin around it.
+    var frame: NSRect? {
+        guard isOpen, let panel else { return nil }
+        return panel.frame.insetBy(dx: PanelView.shadowMargin, dy: PanelView.shadowMargin)
+    }
 
     func toggle() {
         if isOpen { close() } else { open() }
@@ -67,7 +71,7 @@ final class PanelController {
         )
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = true
+        panel.hasShadow = false
         panel.level = .popUpMenu
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.isReleasedWhenClosed = false
@@ -91,12 +95,14 @@ final class PanelController {
         guard let panel, let host else { return }
         let anchor = anchorWindow()
         guard let screen = anchor?.screen ?? NSScreen.main ?? NSScreen.screens.first else { return }
-        let frame = PanelPlacement.frame(
-            contentSize: host.fittingSize,
+        let margin = PanelView.shadowMargin
+        let size = host.fittingSize
+        let glass = PanelPlacement.frame(
+            contentSize: CGSize(width: size.width - 2 * margin, height: size.height - 2 * margin),
             anchor: anchor?.frame,
             visibleFrame: screen.visibleFrame
         )
-        panel.setFrame(frame, display: true)
+        panel.setFrame(glass.insetBy(dx: -margin, dy: -margin), display: true)
     }
 
     /// A mouse-down on the status item is left to the item's own action, which toggles the
@@ -110,7 +116,7 @@ final class PanelController {
             eventMonitors.append(monitor)
         }
         if let monitor = NSEvent.addLocalMonitorForEvents(matching: mouseDown, handler: { [weak self] event in
-            if let self, event.window !== self.panel {
+            if let self, !(self.frame?.contains(NSEvent.mouseLocation) ?? false) {
                 self.closeUnlessOnStatusItem()
             }
             return event

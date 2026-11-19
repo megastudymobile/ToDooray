@@ -8,6 +8,9 @@ struct PanelView: View {
     let perform: (PanelAction) -> Void
 
     static let width: CGFloat = 344
+    /// Transparent room around the glass for its own shadow. A window edge that touches the
+    /// glass clips that shadow to a square, which shows as lines past the rounded corners.
+    static let shadowMargin: CGFloat = 24
 
     var body: some View {
         let content = PanelModel.make(state: model.state, now: model.now, calendar: .current)
@@ -19,10 +22,12 @@ struct PanelView: View {
         .padding(12)
         .frame(width: Self.width)
         .modifier(GlassBackground(cornerRadius: 30))
+        .padding(Self.shadowMargin)
     }
 }
 
-/// Liquid Glass on macOS 26 and later, a behind-window material before that.
+/// Liquid Glass on macOS 26 and later, a behind-window material before that. Both draw
+/// their own shadow because the panel window has none.
 private struct GlassBackground: ViewModifier {
     let cornerRadius: CGFloat
 
@@ -30,7 +35,11 @@ private struct GlassBackground: ViewModifier {
         if #available(macOS 26.0, *) {
             content.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
         } else {
-            content.background(MaterialBackground().clipShape(.rect(cornerRadius: cornerRadius)))
+            content.background(
+                MaterialBackground()
+                    .clipShape(.rect(cornerRadius: cornerRadius))
+                    .shadow(color: .black.opacity(0.18), radius: 12, y: 4)
+            )
         }
     }
 }

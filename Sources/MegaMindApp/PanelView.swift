@@ -16,7 +16,7 @@ struct PanelView: View {
         let content = PanelModel.make(state: model.state, filter: model.filter, now: model.now, calendar: .current)
         VStack(spacing: 10) {
             HeaderCard(header: content.header)
-            BodyCard(content: content.body, footer: content.footer, perform: perform)
+            BodyCard(content: content.body, footer: content.footer, filterNote: content.filterNote, perform: perform)
             BottomBar(perform: perform)
         }
         .padding(12)
@@ -94,6 +94,7 @@ private struct HeaderCard: View {
 private struct BodyCard: View {
     let content: PanelModel.Body
     let footer: String?
+    let filterNote: String?
     let perform: (PanelAction) -> Void
 
     var body: some View {
@@ -124,8 +125,16 @@ private struct BodyCard: View {
             case .authFailed:
                 SetupNotice(message: Copy.authFailed, perform: perform)
             }
-            if let footer {
-                Text(footer).font(.system(size: 11)).foregroundStyle(.tertiary)
+            if footer != nil || filterNote != nil {
+                VStack(alignment: .leading, spacing: 2) {
+                    if let footer {
+                        Text(footer).foregroundStyle(.tertiary)
+                    }
+                    if let filterNote {
+                        Text(filterNote).foregroundStyle(.secondary)
+                    }
+                }
+                .font(.system(size: 11))
             }
         }
         .modifier(Card())

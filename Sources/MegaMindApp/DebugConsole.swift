@@ -13,6 +13,7 @@ import DooraySync
 ///     refresh          {"type":"ok"}, then state lines as the sync proceeds
 ///     settings         {"type":"window","name":"settings","windowNumber":456,"frame":[x,y,w,h]}
 ///     now <ISO 8601>   {"type":"ok"}, and the render clock is frozen there
+///     filter <json>    {"type":"ok"}, and the task filter is set; `filter null` clears it
 ///     quit             the process exits
 ///
 /// A state line is also printed whenever the app state or the menu bar form changes, so a
@@ -20,8 +21,8 @@ import DooraySync
 /// `screencapture -l`. Closing stdin quits the app.
 ///
 /// Two more Debug-only variables make a run hermetic. `MEGAMIND_CONFIG=<file>` reads
-/// `{"apiBase": …, "webBase": …, "token": …}` into memory in place of the Keychain and
-/// UserDefaults. `MEGAMIND_NOW=<ISO 8601>` freezes the clock from launch.
+/// `{"apiBase": …, "webBase": …, "token": …, "filter": …}` into memory in place of the
+/// Keychain and UserDefaults. `filter` is optional and takes the same JSON as the command. `MEGAMIND_NOW=<ISO 8601>` freezes the clock from launch.
 @MainActor
 final class DebugConsole {
     static var isEnabled: Bool {
@@ -76,6 +77,14 @@ final class DebugConsole {
                 return
             }
             model.freezeClock(at: date)
+            emit(Reply(type: "ok"))
+        case "filter":
+            let json = words.count == 2 ? words[1] : ""
+            guard let filter = json == "null" ? .showAll : try? JSONDecoder().decode(TaskFilter.self, from: Data(json.utf8)) else {
+                emit(Reply(type: "error", message: "usage: filter <TaskFilter JSON> | filter null"))
+                return
+            }
+            model.setFilter(filter)
             emit(Reply(type: "ok"))
         case "quit":
             NSApp.terminate(nil)
@@ -169,8 +178,13 @@ private struct DebugState: Encodable {
     let fetchedAt: Date?
     let menuBar: MenuBar
     let header: PanelModel.Header
-    /// Every open task in contract order, in the shape of `expected.json`.
+    /// Every open task in contract order, in the shape of `expected.json`, filter or not.
     let agenda: [Row]
+    /// The ids in `agenda` that the filter shows.
+    let visibleIDs: [String]
+    /// nil when no filter is on or there is no list.
+    let hiddenCount: Int?
+    let filter: TaskFilter
     let todayRowIDs: [String]
     let next: Next?
     let footer: String?
@@ -204,6 +218,8 @@ private struct DebugState: Encodable {
         let content = PanelModel.make(state: state, filter: model.filter, now: model.now, calendar: calendar)
         header = content.header
         footer = content.footer
+        hiddenCount = content.hiddenCount
+        filter = model.filter
         if case .tasks(let today, let upcoming) = content.body {
             todayRowIDs = today.map(\.id)
             next = upcoming.map { Next(id: $0.task.id, subject: $0.subject, when: $0.when, moreCount: $0.moreCount) }
@@ -211,7 +227,8 @@ private struct DebugState: Encodable {
             todayRowIDs = []
             next = nil
         }
-        agenda = Agenda.items(state.snapshot?.tasks ?? [], now: model.now, calendar: calendar).map { item in
+        let items = Agenda.items(state.snapshot?.tasks ?? [], now: model.now, calendar: calendar)
+        agenda = items.map { item in
             Row(
                 id: item.task.id,
                 key: item.task.key,
@@ -221,6 +238,7 @@ private struct DebugState: Encodable {
                 state: item.task.state.rawValue
             )
         }
+        visibleIDs = items.filter { model.filter.admits($0.task) }.map(\.task.id)
         self.panel = PanelEvent(panel)
     }
 }

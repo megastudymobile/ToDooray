@@ -7,17 +7,19 @@ struct KeychainError: Error, Equatable {
     let status: OSStatus
 }
 
-/// The only reader and writer of persisted settings. The token lives in the Keychain and
-/// the two addresses in UserDefaults. The token never enters UserDefaults or a log line.
+/// The only reader and writer of persisted settings. The token lives in the Keychain, and
+/// the two addresses and the task filter in UserDefaults. The token never enters
+/// UserDefaults or a log line.
 @MainActor
 final class SettingsStore {
     private enum Backend {
         case system(defaults: UserDefaults, keychainService: String)
         /// Nothing is read from or written to the Keychain or UserDefaults.
-        case memory(Settings)
+        case memory(Settings, TaskFilter)
     }
 
     private static let account = "dooray-api-token"
+    private static let filterKey = "taskFilter"
     private static let log = Logger(subsystem: "MegaMind", category: "settings")
     private var backend: Backend
 
@@ -25,7 +27,8 @@ final class SettingsStore {
         #if DEBUG
         // End-to-end runs pass a fake token here so they can never read or replace a real one.
         if let path = environment["MEGAMIND_CONFIG"] {
-            backend = .memory(Self.settings(fromConfigAt: path))
+            let config = Self.config(at: path)
+            backend = .memory(config.settings, config.filter)
             return
         }
         #endif
@@ -34,7 +37,7 @@ final class SettingsStore {
 
     func load() -> Settings {
         switch backend {
-        case .memory(let settings):
+        case .memory(let settings, _):
             return settings
         case .system(let defaults, let service):
             return Settings(
@@ -47,14 +50,38 @@ final class SettingsStore {
 
     func save(_ settings: Settings) throws(KeychainError) {
         switch backend {
-        case .memory:
-            backend = .memory(settings)
+        case .memory(_, let filter):
+            backend = .memory(settings, filter)
         case .system(let defaults, let service):
             if let token = settings.token {
                 try Self.writeToken(token, service: service)
             }
             defaults.set(settings.apiBase.absoluteString, forKey: "apiBase")
             defaults.set(settings.webBase?.absoluteString, forKey: "webBase")
+        }
+    }
+
+    func loadFilter() -> TaskFilter {
+        switch backend {
+        case .memory(_, let filter):
+            return filter
+        case .system(let defaults, _):
+            guard let data = defaults.data(forKey: Self.filterKey) else { return .showAll }
+            do {
+                return try JSONDecoder().decode(TaskFilter.self, from: data)
+            } catch {
+                Self.log.error("Ignoring an unreadable task filter: \(error)")
+                return .showAll
+            }
+        }
+    }
+
+    func saveFilter(_ filter: TaskFilter) {
+        switch backend {
+        case .memory(let settings, _):
+            backend = .memory(settings, filter)
+        case .system(let defaults, _):
+            defaults.set(try? JSONEncoder().encode(filter), forKey: Self.filterKey)
         }
     }
 
@@ -98,16 +125,18 @@ final class SettingsStore {
         let apiBase: String?
         let webBase: String?
         let token: String?
+        let filter: TaskFilter?
     }
 
-    private static func settings(fromConfigAt path: String) -> Settings {
+    private static func config(at path: String) -> (settings: Settings, filter: TaskFilter) {
         guard let data = FileManager.default.contents(atPath: path),
-              let file = try? JSONDecoder().decode(ConfigFile.self, from: data) else { return .empty }
-        return Settings(
+              let file = try? JSONDecoder().decode(ConfigFile.self, from: data) else { return (.empty, .showAll) }
+        let settings = Settings(
             apiBase: file.apiBase.flatMap(Settings.parseAPIBase) ?? Settings.defaultAPIBase,
             webBase: file.webBase.flatMap(Settings.parseWebBase),
             token: file.token.flatMap { APIToken($0) }
         )
+        return (settings, file.filter ?? .showAll)
     }
     #endif
 }

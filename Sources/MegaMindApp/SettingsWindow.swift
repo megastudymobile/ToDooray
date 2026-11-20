@@ -75,6 +75,8 @@ struct SettingsView: View {
                     Button("저장", action: save).keyboardShortcut(.defaultAction)
                 }
             }
+
+            FilterSection(model: model)
         }
         .formStyle(.grouped)
         .frame(width: 440)
@@ -86,6 +88,8 @@ struct SettingsView: View {
         switch model.state {
         case .needsSetup: "토큰과 웹 주소를 입력해 주세요"
         case .loading: "확인 중…"
+        case .loaded(let snapshot) where model.filter.isActive:
+            "연결됨 · 업무 \(snapshot.tasks.count)건 중 \(model.filter.apply(snapshot.tasks).visible.count)건 표시"
         case .loaded(let snapshot): "연결됨 · 업무 \(snapshot.tasks.count)건"
         case .stale(_, let error), .failed(let error): Copy.failure(error)
         case .authFailed: Copy.authFailed
@@ -125,6 +129,99 @@ struct SettingsView: View {
             loginItemMessage = "로그인 항목을 바꾸지 못했어요"
         }
         launchAtLogin = LaunchAtLogin.isEnabled
+    }
+}
+
+/// Changes apply at once, without the Save button, and never refetch.
+private struct FilterSection: View {
+    let model: AppModel
+
+    private static let listHeight: CGFloat = 180
+
+    var body: some View {
+        let choices = model.filter.choices(for: model.state.snapshot?.tasks ?? [])
+        Section {
+            Toggle("모든 업무 보기", isOn: Binding(
+                get: { !model.filter.isActive },
+                set: { model.setFilter($0 ? .showAll : .pickingEvery(choices)) }
+            ))
+            Group {
+                if choices.isEmpty {
+                    Text("업무를 불러오면 프로젝트가 여기에 보여요")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        // With no filter on, the list shows what "모든 업무 보기" means: everything checked.
+                        FilterList(
+                            choices: choices,
+                            filter: model.filter.isActive ? model.filter : .pickingEvery(choices),
+                            update: model.setFilter
+                        )
+                        .disabled(!model.filter.isActive)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+            .frame(height: Self.listHeight)
+        } header: {
+            Text("표시할 업무")
+        } footer: {
+            Text("체크한 프로젝트와 단계의 업무만 메뉴 막대와 패널에 보여요. 바로 적용돼요.")
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+private struct FilterList: View {
+    let choices: [ProjectChoice]
+    let filter: TaskFilter
+    let update: (TaskFilter) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(choices) { project in
+                let selection = filter.projects?[project.id]
+                Toggle(isOn: binding(selection != nil) { $0.setProject(project, picked: $1) }) {
+                    counted(project.code, project.taskCount)
+                }
+                if let selection {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle("모든 단계", isOn: binding(selection.milestones == nil) {
+                            $0.setEveryMilestone(of: project, picked: $1)
+                        })
+                        if let milestones = selection.milestones {
+                            ForEach(project.milestones, id: \.self) { item in
+                                Toggle(isOn: binding(milestones.admits(item.milestone)) {
+                                    $0.setMilestone(item.milestone, of: project, picked: $1)
+                                }) {
+                                    counted(item.name, item.taskCount)
+                                }
+                            }
+                            .padding(.leading, 20)
+                        }
+                    }
+                    .padding(.leading, 20)
+                }
+            }
+        }
+        .toggleStyle(.checkbox)
+    }
+
+    private func counted(_ name: String, _ count: Int) -> Text {
+        Text(name) + Text("  \(count)건").foregroundStyle(.secondary)
+    }
+
+    private func binding(_ isOn: Bool, _ change: @escaping (inout TaskFilter, Bool) -> Void) -> Binding<Bool> {
+        Binding(
+            get: { isOn },
+            set: { on in
+                var next = filter
+                change(&next, on)
+                update(next)
+            }
+        )
     }
 }
 

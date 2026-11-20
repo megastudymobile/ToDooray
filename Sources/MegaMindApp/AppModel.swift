@@ -12,7 +12,7 @@ final class AppModel {
     /// time zone or day changes.
     private(set) var now: Date
     private(set) var settings: Settings
-    private(set) var filter = TaskFilter.showAll
+    private(set) var filter: TaskFilter
 
     @ObservationIgnored private let store: SettingsStore
     @ObservationIgnored private var clock: () -> Date
@@ -32,6 +32,7 @@ final class AppModel {
         self.clock = clock
         now = clock()
         settings = store.load()
+        filter = store.loadFilter()
     }
 
     func start() {
@@ -99,6 +100,12 @@ final class AppModel {
         if identityChanged || state.snapshot == nil {
             adoptIdentity(reason: .settingsSaved)
         }
+    }
+
+    /// Applies at once and never refetches: the filter only changes what is shown.
+    func setFilter(_ filter: TaskFilter) {
+        self.filter = filter
+        store.saveFilter(filter)
     }
 
     func webURL(for task: DoorayTask) -> URL? {

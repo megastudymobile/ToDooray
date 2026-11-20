@@ -6,6 +6,7 @@ enum PanelAction: Equatable {
     case openTask(DoorayTask)
     case openDooray
     case openSettings
+    case refresh
     case quit
 }
 

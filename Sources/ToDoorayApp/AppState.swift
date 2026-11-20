@@ -68,6 +68,12 @@ enum RefreshPolicy {
     /// The network is often not up yet right after wake.
     static let wakeDelay: TimeInterval = 5
 
+    /// Whether the refresh button can do anything in this state. Timing is left out: a manual
+    /// refresh ignores how recently the last sync ended.
+    static func acceptsManualRefresh(state: AppState) -> Bool {
+        shouldSync(.manual, state: state, inFlight: false, lastAttemptEnd: nil, now: .distantPast)
+    }
+
     /// Level-triggered. A heartbeat asks every minute, so a missed timer or a long sleep can
     /// delay a sync but never lose it. `lastAttemptEnd` counts failures too, so opening the
     /// panel repeatedly does not hammer a failing server.

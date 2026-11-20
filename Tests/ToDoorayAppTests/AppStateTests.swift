@@ -103,4 +103,13 @@ struct Transition: Sendable, CustomStringConvertible {
     func afterAnAuthFailureOnlyNewSettingsSync(_ reason: RefreshReason) {
         #expect(shouldSync(reason, state: .authFailed, secondsSinceLastAttempt: 3600) == (reason == .settingsSaved))
     }
+
+    @Test func theRefreshButtonWorksUnlessSetupOrTheTokenIsMissing() {
+        #expect(RefreshPolicy.acceptsManualRefresh(state: .loading))
+        #expect(RefreshPolicy.acceptsManualRefresh(state: .loaded(previous)))
+        #expect(RefreshPolicy.acceptsManualRefresh(state: .stale(previous, .rateLimited)))
+        #expect(RefreshPolicy.acceptsManualRefresh(state: .failed(.network(.notConnectedToInternet))))
+        #expect(!RefreshPolicy.acceptsManualRefresh(state: .needsSetup))
+        #expect(!RefreshPolicy.acceptsManualRefresh(state: .authFailed))
+    }
 }

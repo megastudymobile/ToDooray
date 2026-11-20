@@ -200,6 +200,7 @@ enum Copy {
     static let nothingToday = "오늘 할 일은 없어요"
     static let openDooray = "Dooray"
     static let settings = "설정"
+    static let refresh = "새로고침 (⌘R)"
     static let quit = "종료"
 
     static func filterNote(hidden: Int) -> String { "필터 적용 중 · 숨긴 업무 \(hidden)건" }

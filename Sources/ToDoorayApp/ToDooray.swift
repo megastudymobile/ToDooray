@@ -73,8 +73,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func perform(_ action: PanelAction) {
-        panel?.close()
+        // Refreshing keeps the panel open so the user sees the list update.
+        if action != .refresh {
+            panel?.close()
+        }
         switch action {
+        case .refresh:
+            model?.refresh(.manual)
         case .openTask(let task):
             if let url = model?.webURL(for: task) { NSWorkspace.shared.open(url) }
         case .openDooray:

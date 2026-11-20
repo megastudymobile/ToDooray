@@ -277,10 +277,14 @@ private struct DebugState: Encodable {
     let next: Next?
     let footer: String?
     let panel: PanelEvent
+    let syncing: Bool
+    let canRefresh: Bool
 
     @MainActor
     init(model: AppModel, statusItem: StatusItemController, panel: PanelController) {
         let state = model.state
+        syncing = model.isSyncing
+        canRefresh = model.canRefresh
         let calendar = Calendar.current
         switch state {
         case .needsSetup: (kind, error) = ("needsSetup", nil)

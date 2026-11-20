@@ -17,7 +17,7 @@ struct PanelView: View {
         VStack(spacing: 10) {
             HeaderCard(header: content.header)
             BodyCard(content: content.body, footer: content.footer, filterNote: content.filterNote, perform: perform)
-            BottomBar(perform: perform)
+            BottomBar(isSyncing: model.isSyncing, canRefresh: model.canRefresh, perform: perform)
         }
         .padding(12)
         .frame(width: Self.width)
@@ -257,6 +257,8 @@ private struct SetupNotice: View {
 }
 
 private struct BottomBar: View {
+    let isSyncing: Bool
+    let canRefresh: Bool
     let perform: (PanelAction) -> Void
 
     var body: some View {
@@ -265,6 +267,16 @@ private struct BottomBar: View {
                 Label(Copy.openDooray, systemImage: "arrow.up.right.square")
             }
             Spacer()
+            Button { perform(.refresh) } label: {
+                if isSyncing {
+                    ProgressView().controlSize(.small).frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
+            .disabled(isSyncing || !canRefresh)
+            .keyboardShortcut("r", modifiers: .command)
+            .help(Copy.refresh)
             Button { perform(.openSettings) } label: {
                 Image(systemName: "gearshape")
             }

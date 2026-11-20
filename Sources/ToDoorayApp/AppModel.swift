@@ -27,7 +27,12 @@ final class AppModel {
     @ObservationIgnored private let store: SettingsStore
     @ObservationIgnored private var clock: () -> Date
     @ObservationIgnored private var client: DoorayClient?
-    @ObservationIgnored private var syncTask: Task<Void, Never>?
+    @ObservationIgnored private var syncTask: Task<Void, Never>? {
+        didSet { isSyncing = syncTask != nil }
+    }
+    /// Mirrors `syncTask` so views can show progress.
+    private(set) var isSyncing = false
+    var canRefresh: Bool { RefreshPolicy.acceptsManualRefresh(state: state) }
     @ObservationIgnored private var lastAttemptEnd: Date?
     /// Bumped on every identity change. A result from an older generation is dropped even if
     /// its task ignored cancellation.

@@ -54,8 +54,11 @@ struct SettingsView: View {
                 TextField("Dooray 웹 주소", text: $draft.webAddress, prompt: Text("회사이름.dooray.com"))
                 TextField("API 주소", text: $draft.apiBase, prompt: Text(Settings.defaultAPIBase.absoluteString))
             } footer: {
-                Text("토큰은 이 Mac의 키체인에만 저장합니다.")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Text("토큰은 이 Mac의 키체인에만 저장합니다.")
+                    Spacer()
+                    Link("토큰 발급 페이지 열기", destination: Settings.tokenPage(webBase: model.settings.webBase))
+                }
             }
 
             Section {
@@ -100,7 +103,7 @@ struct SettingsView: View {
     private func showStoredSettings() {
         draft = SettingsDraft(
             token: "",
-            webAddress: model.settings.webBase?.absoluteString ?? "",
+            webAddress: (model.settings.webBase ?? Settings.defaultWebBase).absoluteString,
             apiBase: model.settings.apiBase.absoluteString
         )
         loginItemMessage = LaunchAtLogin.needsApproval ? "시스템 설정에서 허용해 주세요" : nil

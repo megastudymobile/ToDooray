@@ -100,6 +100,15 @@ import Testing
         token: APIToken("stored-token")
     )
 
+    @Test func tokenPageFollowsTheSavedTenantOrTheTeamDefault() {
+        #expect(Settings.tokenPage(webBase: stored.webBase).absoluteString == "https://old.dooray.com/setting/api/token")
+        #expect(Settings.tokenPage(webBase: nil).absoluteString == "https://megastudy.dooray.com/setting/api/token")
+    }
+
+    @Test func theTeamDefaultWebAddressIsValid() {
+        #expect(Settings.parseWebBase(Settings.defaultWebBase.absoluteString) == Settings.defaultWebBase)
+    }
+
     private func validated(
         token: String = "",
         web: String = "acme",

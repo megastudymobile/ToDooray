@@ -9,7 +9,14 @@ struct Settings: Equatable {
     var token: APIToken?
 
     static let defaultAPIBase = URL(string: "https://api.dooray.com")!
+    /// The team's tenant, prefilled so a new install needs only a token.
+    static let defaultWebBase = URL(string: "https://megastudy.dooray.com")!
     static let empty = Settings(apiBase: defaultAPIBase, webBase: nil, token: nil)
+
+    /// Dooray's page for issuing a personal API token.
+    static func tokenPage(webBase: URL?) -> URL {
+        (webBase ?? defaultWebBase).appending(path: "setting/api/token")
+    }
 
     var isComplete: Bool { token != nil && webBase != nil }
 

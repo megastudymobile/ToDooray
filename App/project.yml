@@ -32,12 +32,12 @@ targets:
           NSAllowsLocalNetworking: true
     settings:
       base:
-        # Placeholder. Fix it before the first teammate installs the app: the Keychain item,
-        # the login item and UserDefaults are all keyed on it.
+        # Teammates' Keychain item, login item and UserDefaults are keyed on this id, so
+        # changing it after a release makes everyone set the app up again.
         TODOORAY_BUNDLE_ID: com.megastudymobile.ToDooray
         PRODUCT_BUNDLE_IDENTIFIER: $(TODOORAY_BUNDLE_ID)$(TODOORAY_BUNDLE_ID_SUFFIX)
         PRODUCT_NAME: ToDooray
-        MARKETING_VERSION: 0.1.0
+        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         SWIFT_VERSION: "6.0"
         ENABLE_HARDENED_RUNTIME: YES

@@ -3,7 +3,7 @@ APP_DEBUG  := build/Build/Products/Debug/ToDooray.app
 XCODEBUILD := xcodebuild -project App/ToDooray.xcodeproj -scheme ToDooray -derivedDataPath build \
               -destination 'platform=macOS,arch=$(shell uname -m)' -quiet
 
-.PHONY: test project app release run mock e2e clean
+.PHONY: test project app release dist run mock e2e clean
 
 test:            ## contract and app logic tests
 	swift test
@@ -16,6 +16,9 @@ app: project     ## Debug bundle, with the debug console
 
 release: project ## Release bundle, without the debug console
 	$(XCODEBUILD) -configuration Release build
+
+dist:            ## signed, notarized zip in build/dist; see tools/dist.sh
+	tools/dist.sh
 
 run: app         ## run in the foreground with the debug console on stdin and stdout
 	TODOORAY_CONSOLE=1 $(APP_DEBUG)/Contents/MacOS/ToDooray

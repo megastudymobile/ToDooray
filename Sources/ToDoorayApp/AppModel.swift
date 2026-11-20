@@ -19,7 +19,6 @@ final class AppModel {
     private(set) var milestoneLoads: [String: MilestoneLoad] = [:]
 
     enum MilestoneLoad: Equatable {
-        /// The task ends when the load settles.
         case loading(Task<Void, Never>)
         case loaded([Milestone])
         case failed(DoorayError)
@@ -128,8 +127,9 @@ final class AppModel {
         )
     }
 
-    /// Starts loading a project's milestones unless they are loaded or loading. A failed load
-    /// starts again, which is the retry.
+    /// Starts loading a project's milestones unless they are loaded or loading, and returns
+    /// the load for a caller that waits for it to settle. A failed load starts again, which is
+    /// the retry.
     @discardableResult
     func loadMilestones(of projectID: String) -> Task<Void, Never> {
         switch milestoneLoads[projectID] {

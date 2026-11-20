@@ -3,11 +3,9 @@ import Foundation
 
 /// Which tasks the menu bar and the panel show. It is a preference, so a project or
 /// milestone the user never picked stays hidden, including one that appears later.
-/// A task shows only when it passes both parts: the projects and milestones, and `directOnly`.
 struct TaskFilter: Equatable, Codable {
     /// Keyed by project id. nil shows every project.
     var projects: [String: ProjectSelection]?
-    /// Hides tasks that reach me only through a group.
     var directOnly = false
 
     struct ProjectSelection: Equatable, Codable {

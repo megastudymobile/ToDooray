@@ -13,7 +13,8 @@ import DooraySync
 ///     refresh          {"type":"ok"}, then state lines as the sync proceeds
 ///     settings         {"type":"window","name":"settings","windowNumber":456,"frame":[x,y,w,h]}
 ///     now <ISO 8601>   {"type":"ok"}, and the render clock is frozen there
-///     filter <json>    {"type":"ok"}, and the task filter is set; `filter null` clears it
+///     filter <json>    {"type":"ok"}, and the task filter is set; `filter null` clears it.
+///                      `{"directOnly":true}` hides tasks that reach me only through a group
 ///     choices          {"type":"choices","projects":[…]}, the settings list with each project's milestone load
 ///     milestones <id>  {"type":"milestones", ...} once the project's milestone load settles
 ///     quit             the process exits

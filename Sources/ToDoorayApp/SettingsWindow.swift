@@ -141,9 +141,16 @@ private struct FilterSection: View {
     var body: some View {
         let choices = model.filterChoices
         Section {
-            Toggle("모든 업무 보기", isOn: Binding(
-                get: { !model.filter.isActive },
-                set: { model.setFilter($0 ? .showAll : TaskFilter.showAll.pickingEvery(choices)) }
+            Toggle(isOn: Binding(
+                get: { model.filter.directOnly },
+                set: { on in update { $0.directOnly = on } }
+            )) {
+                Text("나에게 직접 지정된 업무만")
+                Text("그룹을 통해 지정된 업무를 숨겨요.")
+            }
+            Toggle("모든 프로젝트 보기", isOn: Binding(
+                get: { model.filter.projects == nil },
+                set: { showAll in update { $0 = showAll ? TaskFilter(directOnly: $0.directOnly) : $0.pickingEvery(choices) } }
             ))
             Group {
                 if choices.isEmpty {
@@ -153,15 +160,15 @@ private struct FilterSection: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
-                        // With no filter on, the list shows what "모든 업무 보기" means: everything checked.
+                        // With every project shown, the list shows what "모든 프로젝트 보기" means: everything checked.
                         FilterList(
                             choices: choices,
-                            filter: model.filter.isActive ? model.filter : model.filter.pickingEvery(choices),
+                            filter: model.filter.projects == nil ? model.filter.pickingEvery(choices) : model.filter,
                             milestoneLoads: model.milestoneLoads,
                             update: model.setFilter,
                             loadMilestones: { model.loadMilestones(of: $0) }
                         )
-                        .disabled(!model.filter.isActive)
+                        .disabled(model.filter.projects == nil)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -173,6 +180,12 @@ private struct FilterSection: View {
             Text("체크한 프로젝트와 단계의 업무만 메뉴 막대와 패널에 보여요. 바로 적용돼요.")
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private func update(_ change: (inout TaskFilter) -> Void) {
+        var next = model.filter
+        change(&next)
+        model.setFilter(next)
     }
 }
 

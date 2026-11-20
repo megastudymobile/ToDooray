@@ -87,3 +87,16 @@
 | `urgency.json` | 긴급도 | `now`, `timeZone`, `dueDate` |
 | `selection.json` | 업무 선별 규칙 1–4와 직접 지정. 판정은 `expect`, 직접 지정 여부는 `direct` | `me`, `workflows`(ID → class), 업무의 `workflowClass`, API 모양 그대로의 `users.to` |
 | `ordering.json` | 정렬과 동률 처리 | `now`, `timeZone`, 순서를 섞은 `tasks` |
+
+## 릴리스: `releases/`
+
+GitHub `GET /repos/megastudymobile/ToDooray/releases/latest`의 응답과 같은 모양이다. 앱은 `tag_name`, `html_url`, `assets[].name`, `assets[].browser_download_url`만 읽는다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `latest.json` | `v9.9.9`. `.zip`과 `.dmg` 자산이 있어 받기 주소는 `.dmg`다. 모의 서버가 내준다 |
+| `zip-only.json` | `v1.0.1`. `.zip` 자산뿐이라 받기 주소는 릴리스 페이지다 |
+
+모의 서버는 시나리오와 상관없이 `GET /releases/latest`에 `latest.json`을 준다. 이 요청은 `Authorization`을 보지 않고 시나리오의 요청 기록에도 들어가지 않는다. 받은 요청의 `User-Agent`와 `Accept`는 `GET /__mock/releases`로 본다.
+
+Debug 앱의 업데이트 확인을 이 주소로 돌리려면 `TODOORAY_RELEASES_URL`이나 `TODOORAY_CONFIG` 파일의 `releasesURL`을 쓴다. `TODOORAY_CONFIG`를 쓰면서 둘 다 없으면 업데이트를 확인하지 않는다. `TODOORAY_VERSION`은 앱 버전을 고정한다.

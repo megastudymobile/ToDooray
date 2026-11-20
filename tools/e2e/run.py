@@ -7,10 +7,12 @@ prints against the scenario's expected.json, the same file the unit tests use.
 A scenario in FILTERS also gets each of its task filters through the console, and the run
 checks which tasks stay visible, the counts, and that the change sent no request. A scenario in
 CHOICES also checks the settings list: every project including one with no task, a filter
-that picks only that project, and the on-demand milestone load with its cache.
+that picks only that project, and the on-demand milestone load with its cache. A scenario in
+UPDATES also checks how the update check ends for the version the app is pinned at.
 
 The app gets a fake token through TODOORAY_CONFIG, which keeps its settings in memory, so
-a run never reads or writes the Keychain or the saved addresses.
+a run never reads or writes the Keychain or the saved addresses. The same file points the
+update check at the mock server's fake release, so a run never calls GitHub.
 
 Usage: run.py --app build/Build/Products/Debug/ToDooray.app [--scenario basic]
 """
@@ -73,6 +75,15 @@ CHOICES = {
         "milestones": ["v1.0.0", "v1.0.1", "v1.1.0"],
     },
 }
+
+MOCK_DMG = "https://github.com/megastudymobile/ToDooray/releases/download/v9.9.9/ToDooray-9.9.9.dmg"
+UNREACHABLE_RELEASES = "http://127.0.0.1:9/releases/latest"
+UPDATES = {
+    "basic": {"version": "1.0.0", "update": {"kind": "available", "version": "9.9.9", "downloadURL": MOCK_DMG}},
+    "empty": {"version": "9.9.9", "update": {"kind": "upToDate"}},
+    "rate-limited": {"version": "1.0.0", "releases": UNREACHABLE_RELEASES, "update": {"kind": "unknown"}},
+}
+DEFAULT_VERSION = "1.0.0"
 
 
 class Failure(Exception):
@@ -175,6 +186,7 @@ def check(app, server, name, expected):
         time.sleep(0.3)
         state = app.ask("state", "state")
     placement = "status item on screen" if state["menuBar"]["onScreen"] else "status item hidden by macOS"
+    update = check_update(app, server, UPDATES[name]) if name in UPDATES else None
 
     panel = app.ask("open", "panel")
     expect(panel["open"] and panel["windowNumber"] > 0, "the panel did not open")
@@ -188,7 +200,25 @@ def check(app, server, name, expected):
         check_choices(app, server, CHOICES[name])
 
     expect(app.quit() == 0, "the app did not exit cleanly")
-    return f"{state['kind']}, {len(state['agenda'])} tasks, title {title!r}, {placement}"
+    summary = f"{state['kind']}, {len(state['agenda'])} tasks, title {title!r}, {placement}"
+    return f"{summary}, update {update}" if update else summary
+
+
+def check_update(app, server, case):
+    app.send("state")
+    update = app.wait_for("the first update check to end",
+                          lambda event: event["type"] == "state" and event["update"]["checked"], timeout=20)["update"]
+    expect(update["current"] == case["version"], f"current version is {update['current']}, expected {case['version']}")
+    for key in ("kind", "version", "downloadURL"):
+        expected = case["update"].get(key)
+        expect(update.get(key) == expected, f"update {key} is {update.get(key)!r}, expected {expected!r}")
+    served = server.get("/__mock/releases")
+    if "releases" in case:
+        expect(served == [], f"the mock release was asked for though the app points elsewhere: {served}")
+    else:
+        asked = [{"userAgent": f"ToDooray/{case['version']}", "accept": "application/vnd.github+json"}]
+        expect(served == asked, f"release requests were {served}, expected {asked}")
+    return update["kind"]
 
 
 def check_filter(app, server, unfiltered, case):
@@ -258,9 +288,15 @@ def run(bundle: Path, directory: Path, spec: dict) -> str:
             "apiBase": f"http://127.0.0.1:{server.port}",
             "webBase": "https://example.dooray.com",
             "token": spec["token"],
+            "releasesURL": f"http://127.0.0.1:{server.port}/releases/latest",
         }))
+        update = UPDATES.get(directory.name, {})
         env = dict(os.environ, TODOORAY_CONSOLE="1", TODOORAY_CONFIG=str(config),
-                   TODOORAY_NOW=spec["now"], TZ=spec["timeZone"])
+                   TODOORAY_NOW=spec["now"], TZ=spec["timeZone"],
+                   TODOORAY_VERSION=update.get("version", DEFAULT_VERSION))
+        env.pop("TODOORAY_RELEASES_URL", None)
+        if "releases" in update:
+            env["TODOORAY_RELEASES_URL"] = update["releases"]
         try:
             with open(Path(work) / "stderr.log", "w+") as stderr:
                 app = App(bundle, env, stderr)

@@ -11,6 +11,9 @@ It prints "LISTENING <port>" once bound. Port 0 picks a free port.
 
   GET /__mock/requests   every request served so far, as [{path, query, status}]
   GET /__mock/unmatched  the requests that matched no route
+
+  GET /releases/latest   fixtures/releases/latest.json, standing in for GitHub's latest release
+  GET /__mock/releases   every request to it, as [{userAgent, accept}]
 """
 import argparse
 import json
@@ -19,6 +22,8 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qsl, urlsplit
+
+LATEST_RELEASE = Path(__file__).resolve().parents[2] / "fixtures" / "releases" / "latest.json"
 
 
 class Scenario:
@@ -62,9 +67,16 @@ class Scenario:
 
 class Handler(BaseHTTPRequestHandler):
     scenario = None
+    release_requests = []
 
     def do_GET(self):
         url = urlsplit(self.path)
+        if url.path == "/releases/latest":
+            self.release_requests.append({"userAgent": self.headers.get("User-Agent"),
+                                          "accept": self.headers.get("Accept")})
+            return self.reply(200, {}, LATEST_RELEASE.read_bytes())
+        if url.path == "/__mock/releases":
+            return self.reply(200, {}, json.dumps(self.release_requests).encode())
         if url.path == "/__mock/requests":
             return self.reply(200, {}, json.dumps(self.scenario.requests).encode())
         if url.path == "/__mock/unmatched":

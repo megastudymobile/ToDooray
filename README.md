@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/icon.png" width="128" alt="ToDooray 아이콘"></p>
+
 # ToDooray
 
 ToDooray는 Dooray에서 내가 처리할 업무를 macOS 메뉴바에 보여주는 앱입니다. 메뉴바에는 오늘 마감이 가장 가까운 업무나 남은 업무 수가 한 줄로 나오고, 누르면 업무 목록이 열립니다.

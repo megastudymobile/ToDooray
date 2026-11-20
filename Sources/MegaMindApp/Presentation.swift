@@ -22,7 +22,6 @@ struct StatusTitle: Equatable {
     /// With a list, the title follows the next deadline today. An overdue task is not the
     /// title: the oldest one sorts first and would stay pinned to the menu bar for weeks.
     /// A stale list renders like a fresh one, since it is still the best answer available.
-    /// Only the tasks the filter shows count.
     static func make(state: AppState, filter: TaskFilter, now: Date, calendar: Calendar) -> StatusTitle {
         guard let snapshot = state.snapshot else {
             switch state {

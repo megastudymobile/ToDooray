@@ -102,7 +102,6 @@ final class AppModel {
         }
     }
 
-    /// Applies at once and never refetches: the filter only changes what is shown.
     func setFilter(_ filter: TaskFilter) {
         self.filter = filter
         store.saveFilter(filter)

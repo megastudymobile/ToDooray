@@ -132,7 +132,6 @@ struct SettingsView: View {
     }
 }
 
-/// Changes apply at once, without the Save button, and never refetch.
 private struct FilterSection: View {
     let model: AppModel
 

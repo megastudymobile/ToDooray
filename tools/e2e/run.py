@@ -4,6 +4,8 @@
 Each run starts tools/mock-dooray/server.py on a free loopback port, launches the binary
 inside the bundle with its debug console on stdin and stdout, and checks what the app
 prints against the scenario's expected.json, the same file the unit tests use.
+A scenario in FILTERS also gets a task filter through the console, and the run checks
+which tasks stay visible, the counts, and that the change sent no request.
 
 The app gets a fake token through MEGAMIND_CONFIG, which keeps its settings in memory, so
 a run never reads or writes the Keychain or the saved addresses.
@@ -33,6 +35,17 @@ MENU_BAR_TITLES = {
     "empty": "할 일 없음",
     "unauthorized": "토큰 확인",
     "server-error": "",
+}
+FILTERS = {
+    "basic": {
+        "filter": {"projects": {
+            "3000000000000000001": {"code": "FE"},
+            "3000000000000000002": {"code": "APP", "milestones": {
+                "picked": {"7000000000000000001": "v1.0.0"}, "withoutMilestone": False}},
+        }},
+        "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000005", "5000000000000000003"],
+        "hiddenCount": 5,
+    },
 }
 
 
@@ -143,8 +156,30 @@ def check(app, server, name, expected):
     expect(app.ask("state", "state")["panel"]["open"], "state does not report the open panel")
     expect(not app.ask("close", "panel")["open"], "the panel did not close")
 
+    if name in FILTERS:
+        check_filter(app, server, state, FILTERS[name])
+
     expect(app.quit() == 0, "the app did not exit cleanly")
     return f"{state['kind']}, {len(state['agenda'])} tasks, title {title!r}, {placement}"
+
+
+def check_filter(app, server, unfiltered, case):
+    requests = len(server.get("/__mock/requests"))
+    expect(app.ask("filter " + json.dumps(case["filter"]), "ok")["type"] == "ok", "the filter command failed")
+    state = app.ask("state", "state")
+    expect(state["visibleIDs"] == case["visibleIDs"], f"visible ids are {state['visibleIDs']}")
+    expect(state["header"]["openCount"] == len(case["visibleIDs"]), f"header count is {state['header']['openCount']}")
+    expect(state["hiddenCount"] == case["hiddenCount"], f"hidden count is {state['hiddenCount']}")
+    expect(len(state["agenda"]) == len(unfiltered["agenda"]), "the filter changed the agenda")
+    expect(app.ask("open", "panel")["open"], "the panel did not open with a filter on")
+    expect(not app.ask("close", "panel")["open"], "the panel did not close")
+
+    expect(app.ask("filter null", "ok")["type"] == "ok", "filter null failed")
+    state = app.ask("state", "state")
+    expect(state.get("hiddenCount") is None, "hiddenCount stays after the filter is cleared")
+    expect(state["visibleIDs"] == [row["id"] for row in unfiltered["agenda"]], "clearing the filter did not show every task")
+    expect(state["header"]["openCount"] == unfiltered["header"]["openCount"], "header count did not come back")
+    expect(len(server.get("/__mock/requests")) == requests, "changing the filter sent a request")
 
 
 def run(bundle: Path, directory: Path, spec: dict) -> str:

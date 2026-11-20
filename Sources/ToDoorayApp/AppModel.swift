@@ -2,9 +2,9 @@ import AppKit
 import DooraySync
 import Observation
 
-/// Owns the app state and the sync lifecycle. It is the only writer of `state`, `now`,
-/// `settings`, `filter` and `milestoneLoads`. Views, the status item, the panel and the debug
-/// console read them.
+/// Owns the app state, the sync lifecycle and the update check. It is the only writer of
+/// `state`, `now`, `settings`, `filter`, `milestoneLoads` and `update`. Views, the status
+/// item, the panel and the debug console read them.
 @MainActor
 @Observable
 final class AppModel {
@@ -24,7 +24,16 @@ final class AppModel {
         case failed(DoorayError)
     }
 
+    private(set) var update: UpdateStatus = .unknown
+    /// When the last update check ended, failed or not. Observed so the debug console prints
+    /// a state line even when a failed check changes nothing else.
+    private(set) var lastUpdateCheckEnd: Date?
+    var currentVersion: AppVersion? { feed?.currentVersion }
+
     @ObservationIgnored private let store: SettingsStore
+    @ObservationIgnored private let feed: ReleaseFeed?
+    @ObservationIgnored private var updateTask: Task<Void, Never>?
+    @ObservationIgnored private let launchedAt = Date()
     @ObservationIgnored private var clock: () -> Date
     @ObservationIgnored private var client: DoorayClient?
     @ObservationIgnored private var syncTask: Task<Void, Never>? {
@@ -42,8 +51,9 @@ final class AppModel {
     @ObservationIgnored private var heartbeat: Task<Void, Never>?
     @ObservationIgnored private var wakeTask: Task<Void, Never>?
 
-    init(store: SettingsStore, clock: @escaping () -> Date = Date.init) {
+    init(store: SettingsStore, feed: ReleaseFeed?, clock: @escaping () -> Date = Date.init) {
         self.store = store
+        self.feed = feed
         self.clock = clock
         now = clock()
         settings = store.load()
@@ -52,6 +62,10 @@ final class AppModel {
 
     func start() {
         adoptIdentity(reason: .launch)
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(UpdatePolicy.launchDelay))
+            self?.checkForUpdate()
+        }
         heartbeat = Task { [weak self] in
             while !Task.isCancelled {
                 let secondsIntoMinute = Date().timeIntervalSince1970.truncatingRemainder(dividingBy: 60)
@@ -205,6 +219,23 @@ final class AppModel {
     private func tick() {
         now = clock()
         refresh(.timer)
+        checkForUpdate()
+    }
+
+    /// Timed with the real clock, not `clock`, which a Debug run may have frozen.
+    private func checkForUpdate() {
+        guard !suspended, let feed,
+              UpdatePolicy.shouldCheck(inFlight: updateTask != nil, launchedAt: launchedAt, lastAttemptEnd: lastUpdateCheckEnd, now: Date())
+        else { return }
+        updateTask = Task { [weak self] in
+            let latest = await feed.latest()
+            guard let self else { return }
+            self.updateTask = nil
+            self.lastUpdateCheckEnd = Date()
+            if let latest {
+                self.update = UpdateStatus(latest: latest, current: feed.currentVersion)
+            }
+        }
     }
 
     private func observeSystem() {

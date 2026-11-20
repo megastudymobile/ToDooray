@@ -44,6 +44,13 @@ struct SettingsView: View {
     @State private var loginItemMessage: String?
 
     var body: some View {
+        VStack(spacing: 0) {
+            form
+            VersionLine(model: model)
+        }
+    }
+
+    private var form: some View {
         Form {
             Section {
                 SecureField(
@@ -133,6 +140,29 @@ struct SettingsView: View {
             loginItemMessage = "로그인 항목을 바꾸지 못했어요"
         }
         launchAtLogin = LaunchAtLogin.isEnabled
+    }
+}
+
+private struct VersionLine: View {
+    let model: AppModel
+
+    var body: some View {
+        HStack {
+            if let version = model.currentVersion {
+                Text("버전 \(version.description)").foregroundStyle(.secondary)
+            }
+            Spacer()
+            if let release = model.update.release {
+                Button("새 버전 \(release.version.description) 받기") { NSWorkspace.shared.open(release.downloadURL) }
+                    .controlSize(.small)
+            }
+        }
+        .font(.callout)
+        // Room for the button, so the window keeps its height when an update shows up.
+        .frame(minHeight: 20)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
+        .frame(width: 440)
     }
 }
 

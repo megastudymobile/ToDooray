@@ -19,13 +19,17 @@ import DooraySync
 ///     milestones <id>  {"type":"milestones", ...} once the project's milestone load settles
 ///     quit             the process exits
 ///
-/// A state line is also printed whenever the app state or the menu bar form changes, so a
-/// driver waits for `"kind":"loaded"` instead of sleeping. `windowNumber` works with
+/// A state line is also printed whenever the app state, the update status or the menu bar
+/// form changes, or an update check ends, so a driver waits for `"kind":"loaded"` or
+/// `"update":{"checked":true,…}` instead of sleeping. `windowNumber` works with
 /// `screencapture -l`. Closing stdin quits the app.
 ///
 /// Two more Debug-only variables make a run hermetic. `TODOORAY_CONFIG=<file>` reads
-/// `{"apiBase": …, "webBase": …, "token": …, "filter": …}` into memory in place of the
-/// Keychain and UserDefaults. `filter` is optional and takes the same JSON as the command. `TODOORAY_NOW=<ISO 8601>` freezes the clock from launch.
+/// `{"apiBase": …, "webBase": …, "token": …, "filter": …, "releasesURL": …}` into memory in
+/// place of the Keychain and UserDefaults. `filter` is optional and takes the same JSON as the
+/// command. Without `releasesURL` or `TODOORAY_RELEASES_URL` the run checks for no update.
+/// `TODOORAY_NOW=<ISO 8601>` freezes the clock from launch, and `TODOORAY_VERSION=<x.y.z>`
+/// pins the version the update check compares against.
 @MainActor
 final class DebugConsole {
     static var isEnabled: Bool {
@@ -258,6 +262,29 @@ private struct DebugState: Encodable {
         let moreCount: Int
     }
 
+    struct Update: Encodable {
+        /// `unknown`, `upToDate` or `available`.
+        let kind: String
+        let current: String?
+        let version: String?
+        let downloadURL: URL?
+        /// Whether any check has ended, a failed one included.
+        let checked: Bool
+
+        @MainActor
+        init(model: AppModel) {
+            switch model.update {
+            case .unknown: kind = "unknown"
+            case .upToDate: kind = "upToDate"
+            case .available: kind = "available"
+            }
+            current = model.currentVersion?.description
+            version = model.update.release?.version.description
+            downloadURL = model.update.release?.downloadURL
+            checked = model.lastUpdateCheckEnd != nil
+        }
+    }
+
     let type = "state"
     let kind: String
     /// The `DoorayError` name for `stale` and `failed`.
@@ -279,12 +306,14 @@ private struct DebugState: Encodable {
     let panel: PanelEvent
     let syncing: Bool
     let canRefresh: Bool
+    let update: Update
 
     @MainActor
     init(model: AppModel, statusItem: StatusItemController, panel: PanelController) {
         let state = model.state
         syncing = model.isSyncing
         canRefresh = model.canRefresh
+        update = Update(model: model)
         let calendar = Calendar.current
         switch state {
         case .needsSetup: (kind, error) = ("needsSetup", nil)

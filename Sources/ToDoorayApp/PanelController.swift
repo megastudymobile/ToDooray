@@ -7,6 +7,7 @@ enum PanelAction: Equatable {
     case openDooray
     case openSettings
     case refresh
+    case update
     case quit
 }
 

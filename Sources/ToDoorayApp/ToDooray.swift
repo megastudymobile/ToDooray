@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = Self.makeMainMenu()
 
-        let model = AppModel(store: SettingsStore(), clock: Self.clock())
+        let model = AppModel(store: SettingsStore(), feed: ReleaseFeed(), clock: Self.clock())
         let settingsWindow = SettingsWindowController(model: model)
         let statusItem = StatusItemController(model: model) { [weak self] in
             self?.panel?.toggle()
@@ -86,6 +86,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let url = model?.settings.webBase { NSWorkspace.shared.open(url) }
         case .openSettings:
             settingsWindow?.show()
+        case .update:
+            if let release = model?.update.release { NSWorkspace.shared.open(release.downloadURL) }
         case .quit:
             NSApp.terminate(nil)
         }

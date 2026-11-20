@@ -202,6 +202,8 @@ enum Copy {
     static let settings = "설정"
     static let refresh = "새로고침 (⌘R)"
     static let quit = "종료"
+    static func update(_ version: AppVersion) -> String { "업데이트 \(version)" }
+    static let updateHelp = "새 버전 내려받기"
 
     static func filterNote(hidden: Int) -> String { "필터 적용 중 · 숨긴 업무 \(hidden)건" }
     static let noMilestone = "단계 없음"

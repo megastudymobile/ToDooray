@@ -25,6 +25,29 @@ public struct DoorayTask: Sendable, Hashable, Identifiable {
     }
 }
 
+/// A project I belong to.
+public struct DoorayProject: Sendable, Hashable {
+    public let id: String
+    public let code: String
+
+    public init(id: String, code: String) {
+        self.id = id
+        self.code = code
+    }
+}
+
+/// One sync: my open tasks and the projects they were read from.
+public struct OpenTasks: Sendable, Hashable {
+    public let tasks: [DoorayTask]
+    /// Every project I belong to, open task or not, minus those skipped for 403 or 404.
+    public let projects: [DoorayProject]
+
+    public init(tasks: [DoorayTask], projects: [DoorayProject]) {
+        self.tasks = tasks
+        self.projects = projects
+    }
+}
+
 public struct Milestone: Sendable, Hashable {
     public let id: String
     public let name: String

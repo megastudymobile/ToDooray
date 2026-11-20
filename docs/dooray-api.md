@@ -20,15 +20,24 @@ ToDooray가 쓰는 Dooray 공식 API와 업무 선별 규칙을 적는다. macOS
 | 내 멤버 ID | `GET /common/v1/members/me` |
 | 내가 속한 프로젝트 | `GET /project/v1/projects?member=me&page=&size=` |
 | 프로젝트의 워크플로우 | `GET /project/v1/projects/{projectId}/workflows` |
+| 프로젝트의 단계 | `GET /project/v1/projects/{projectId}/milestones?page=&size=` |
 | 프로젝트의 내 담당 업무 | `GET /project/v1/projects/{projectId}/posts?toMemberIds={내 ID}&postWorkflowClasses=registered,working&page=&size=` |
 
 전 프로젝트의 업무를 한 번에 주는 호출은 CLI에 없다. 프로젝트마다 한 번씩 부른다.
+
+단계 목록은 동기화 때 부르지 않는다. 사용자가 설정에서 그 프로젝트의 단계를 볼 때만 부른다.
 
 ## 쓰는 필드
 
 `members/me`의 `result`에서는 `id`만 쓴다.
 
 프로젝트 항목에서는 `id`와 `code`를 쓴다.
+
+단계 항목에서는 `id`와 `name`을 쓴다. 둘은 반드시 있어야 한다. CLI가 읽는 필드는 이 둘뿐이고, 그 밖의 모양은 공개 API에서 확인하지 못했다. 그래서 닫힌 단계는 다음처럼 너그럽게 거른다.
+
+- `status`가 문자열 `closed`이면 뺀다.
+- `closedAt`이 있고 `null`이 아니면 뺀다. 값의 형식은 보지 않는다.
+- 둘 다 없거나 모르는 값이거나 읽을 수 없으면 남긴다.
 
 워크플로우 항목에서는 `id`, `name`, `class`를 쓴다. `class`는 `backlog`, `registered`, `working`, `closed` 중 하나다.
 
@@ -102,7 +111,7 @@ Dooray는 담당자마다 상태를 따로 가진다. 업무 전체는 진행 �
 
 `totalCount`가 없는 응답이면 `size`보다 적게 온 페이지에서 멈춘다. 읽는 사이에 항목이 페이지 사이로 밀릴 수 있으므로 `id`로 중복을 없앤다.
 
-`fixtures/scenarios/paging`으로 확인한다.
+`fixtures/scenarios/paging`, `basic`의 단계 목록으로 확인한다.
 
 ### 동시 요청과 429
 
@@ -115,9 +124,11 @@ Dooray는 담당자마다 상태를 따로 가진다. 업무 전체는 진행 �
 
 ### 실패 처리
 
-프로젝트의 워크플로우 호출이나 업무 호출이 403 또는 404를 주면 그 프로젝트만 건너뛴다.
+프로젝트의 워크플로우 호출이나 업무 호출이 403 또는 404를 주면 그 프로젝트만 건너뛴다. 건너뛴 프로젝트는 동기화 결과의 프로젝트 목록에도 넣지 않는다. 업무가 없어도 건너뛰지 않은 프로젝트는 모두 넣는다.
 
 그 밖의 실패는 동기화 전체의 실패다. 401, 재시도 뒤에도 남은 429, 5xx, 네트워크 오류, 규격과 다른 본문이 여기에 든다. 이때 앱은 이전 목록을 지우지 않고, 갱신하지 못했다는 표시와 함께 보여준다. 일부가 빠졌는데 온전해 보이는 목록이 오래된 목록보다 나쁘기 때문이다.
+
+단계 목록 호출은 동기화의 일부가 아니므로 403과 404도 건너뛰지 않고 그 호출의 실패로 돌려준다. 429 대기와 오류 종류는 다른 호출과 같다.
 
 `fixtures/scenarios/project-forbidden`, `server-error`, `api-failure`, `unauthorized`로 확인한다.
 

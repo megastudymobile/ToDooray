@@ -6,5 +6,20 @@
       "urgency": "noDue",
       "state": "registered"
     }
-  ]
+  ],
+  "projects": [
+    {
+      "id": "3000000000000000003",
+      "code": "OPS"
+    }
+  ],
+  "milestones": {
+    "3000000000000000001": {
+      "error": "http"
+    }
+  },
+  "notes": {
+    "projects": "건너뛴 두 프로젝트는 projects에도 없다.",
+    "milestones": "단계 목록 호출의 403은 건너뛰지 않고 오류로 돌려준다."
+  }
 }

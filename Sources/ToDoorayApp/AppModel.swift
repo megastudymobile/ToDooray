@@ -64,7 +64,7 @@ final class AppModel {
         syncTask = Task { [weak self] in
             let result: Result<[DoorayTask], DoorayError>
             do throws(DoorayError) {
-                result = .success(try await client.fetchOpenTasks())
+                result = .success(try await client.fetchOpenTasks().tasks)
             } catch {
                 result = .failure(error)
             }

@@ -48,11 +48,18 @@
   "tasks": [
     { "id": "5000000000000000001", "key": "FE-1203", "urgency": "overdue", "state": "registered" }
   ],
+  "projects": [{ "id": "3000000000000000001", "code": "FE" }],                    // 선택. 동기화가 돌려주는 프로젝트, 목록 순서대로
   "requestCounts": { "/project/v1/projects/3000000000000000001/workflows": 2 },  // 선택. 경로별 요청 횟수
   "maxConcurrentRequests": 4,                                                    // 선택. 동시에 처리 중이던 요청의 최댓값
+  "milestones": {                                                                 // 선택. 동기화 뒤에 프로젝트별로 단계 목록을 부른다
+    "3000000000000000002": { "milestones": [{ "id": "7000000000000000001", "name": "v1.0.0" }] },
+    "3000000000000000001": { "error": "http" }
+  },
   "notes": { "…": "사람이 읽는 설명" }                                             // 선택
 }
 ```
+
+`requestCounts`는 단계 목록을 부르기 전에 센다. `milestones`의 목록은 닫힌 단계를 뺀 뒤 API가 준 순서다.
 
 `urgency`는 `overdue`, `dueToday`, `upcoming`, `noDue` 중 하나다. `state`는 내 담당자 상태이고 `registered`나 `working`이다. `key`는 `{프로젝트 코드}-{업무 번호}`다.
 

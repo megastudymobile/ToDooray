@@ -1,0 +1,21 @@
+{
+  "header": {
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result": [
+    {
+      "id": "7000000000000000008",
+      "name": "v0.8.0",
+      "closedAt": "2026-09-30T09:00:00Z"
+    },
+    {
+      "id": "7000000000000000003",
+      "name": "v1.1.0",
+      "status": "planned",
+      "closedAt": null
+    }
+  ],
+  "totalCount": 5
+}

@@ -4,8 +4,8 @@ import os
 /// The whole Dooray contract behind one call.
 ///
 ///     let client = DoorayClient(apiBase: apiBase, token: token)
-///     let tasks = try await client.fetchOpenTasks()
-///     let items = Agenda.items(tasks, now: .now, calendar: .current)
+///     let open = try await client.fetchOpenTasks()
+///     let items = Agenda.items(open.tasks, now: .now, calendar: .current)
 ///
 /// One instance per (apiBase, token). The cached member id and workflow tables belong to
 /// that identity, so a change to either needs a new client.
@@ -38,7 +38,7 @@ public actor DoorayClient {
     /// All or nothing, with one exception: a project that answers 403 or 404 is skipped.
     /// Any other failure throws, so the caller keeps its previous list instead of showing
     /// a shorter one that looks complete.
-    public func fetchOpenTasks() async throws(DoorayError) -> [DoorayTask] {
+    public func fetchOpenTasks() async throws(DoorayError) -> OpenTasks {
         let me = try await member()
         let listed: [ProjectDTO] = try await allPages(.projects)
         var seenProjects = Set<ProjectID>()
@@ -50,7 +50,24 @@ public actor DoorayClient {
         }
 
         var seenTasks = Set<String>()
-        return perProject.compactMap { $0 }.joined().filter { seenTasks.insert($0.id).inserted }
+        var tasks: [DoorayTask] = []
+        var reachable: [DoorayProject] = []
+        for (project, projectTasks) in zip(projects, perProject) {
+            guard let projectTasks else { continue }
+            reachable.append(DoorayProject(id: project.id, code: project.code))
+            tasks += projectTasks.filter { seenTasks.insert($0.id).inserted }
+        }
+        return OpenTasks(tasks: tasks, projects: reachable)
+    }
+
+    /// The project's milestones that are not closed, in the API's order. `fetchOpenTasks`
+    /// never calls this, so a sync costs no request per project for it.
+    public func fetchMilestones(projectID: String) async throws(DoorayError) -> [Milestone] {
+        let rows: [MilestoneDTO] = try await allPages(.milestones(projectID))
+        var seen = Set<String>()
+        return rows
+            .filter { !$0.isClosed && seen.insert($0.id).inserted }
+            .map { Milestone(id: $0.id, name: $0.name) }
     }
 
     private func member() async throws(DoorayError) -> MemberID {

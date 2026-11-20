@@ -1,5 +1,5 @@
 {
-  "description": "프로젝트 네 개. 멤버 담당과 그룹 담당, 내 몫만 closed, 내 몫 backlog, 모르는 워크플로우 ID, 빈 프로젝트, 네 긴급도가 모두 들어 있다.",
+  "description": "프로젝트 네 개. 멤버 담당과 그룹 담당, 내 몫만 closed, 내 몫 backlog, 모르는 워크플로우 ID, 빈 프로젝트, 네 긴급도가 모두 들어 있다. APP의 단계 목록은 두 페이지이고 닫힌 단계가 둘 섞여 있다.",
   "tags": [
     "e2e"
   ],
@@ -123,6 +123,32 @@
         {
           "status": 200,
           "body": "responses/posts-3000000000000000004-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/milestones",
+      "query": {
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/milestones-3000000000000000002-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/milestones",
+      "query": {
+        "page": "1",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "responses/milestones-3000000000000000002-1.json"
         }
       ]
     }

@@ -134,6 +134,32 @@
           "body": "../basic/responses/posts-3000000000000000004-0.json"
         }
       ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/milestones",
+      "query": {
+        "page": "0",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/milestones-3000000000000000002-0.json"
+        }
+      ]
+    },
+    {
+      "path": "/project/v1/projects/3000000000000000002/milestones",
+      "query": {
+        "page": "1",
+        "size": "100"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": "../basic/responses/milestones-3000000000000000002-1.json"
+        }
+      ]
     }
   ],
   "expect": "../basic/expected.json"

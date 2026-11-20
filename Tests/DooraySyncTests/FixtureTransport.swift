@@ -35,9 +35,27 @@ struct Scenario: Sendable, CustomStringConvertible {
 
     struct Expectation: Decodable, Sendable {
         let tasks: [ExpectedTask]?
+        let projects: [ExpectedProject]?
         let error: String?
         let requestCounts: [String: Int]?
         let maxConcurrentRequests: Int?
+        /// Keyed by project id. Each call runs after the sync.
+        let milestones: [String: ExpectedMilestones]?
+    }
+
+    struct ExpectedProject: Decodable, Sendable, Equatable {
+        let id: String
+        let code: String
+    }
+
+    struct ExpectedMilestones: Decodable, Sendable {
+        let milestones: [ExpectedMilestone]?
+        let error: String?
+    }
+
+    struct ExpectedMilestone: Decodable, Sendable, Equatable {
+        let id: String
+        let name: String
     }
 
     struct ExpectedTask: Decodable, Sendable, Equatable {
@@ -223,9 +241,17 @@ struct ScenarioHarness {
         )
     }
 
-    func fetch() async -> Result<[DoorayTask], DoorayError> {
+    func fetch() async -> Result<OpenTasks, DoorayError> {
         do {
             return .success(try await client.fetchOpenTasks())
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    func fetchMilestones(_ projectID: String) async -> Result<[Milestone], DoorayError> {
+        do {
+            return .success(try await client.fetchMilestones(projectID: projectID))
         } catch {
             return .failure(error)
         }

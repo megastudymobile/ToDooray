@@ -39,9 +39,25 @@ struct ProjectDTO: Decodable, Sendable {
     let code: String
 }
 
-struct MilestoneDTO: Decodable, Sendable {
+struct MilestoneDTO: Sendable {
     let id: String
     let name: String
+    let isClosed: Bool
+}
+
+extension MilestoneDTO: Decodable {
+    private enum CodingKeys: String, CodingKey { case id, name, status, closedAt }
+
+    /// Only `id` and `name` are verified on the public API, so an unreadable `status` or
+    /// `closedAt` keeps the milestone instead of failing the call.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        let status = try? container.decodeIfPresent(String.self, forKey: .status)
+        let hasClosedAt = (try? container.decodeNil(forKey: .closedAt)) == false
+        isClosed = status == "closed" || hasClosedAt
+    }
 }
 
 struct WorkflowDTO: Decodable, Sendable {
@@ -223,6 +239,7 @@ enum Endpoint: Sendable {
     case me
     case projects
     case workflows(ProjectID)
+    case milestones(ProjectID)
     case posts(ProjectID, assignee: MemberID)
 
     /// `base` may carry a path prefix, so the path is appended to it.
@@ -237,6 +254,8 @@ enum Endpoint: Sendable {
             query.append(URLQueryItem(name: "member", value: "me"))
         case .workflows(let project):
             path = "project/v1/projects/\(project)/workflows"
+        case .milestones(let project):
+            path = "project/v1/projects/\(project)/milestones"
         case .posts(let project, let assignee):
             path = "project/v1/projects/\(project)/posts"
             query.append(URLQueryItem(name: "toMemberIds", value: assignee))

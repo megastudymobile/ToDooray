@@ -143,7 +143,7 @@ private struct FilterSection: View {
         Section {
             Toggle("모든 업무 보기", isOn: Binding(
                 get: { !model.filter.isActive },
-                set: { model.setFilter($0 ? .showAll : .pickingEvery(choices)) }
+                set: { model.setFilter($0 ? .showAll : TaskFilter.showAll.pickingEvery(choices)) }
             ))
             Group {
                 if choices.isEmpty {
@@ -156,7 +156,7 @@ private struct FilterSection: View {
                         // With no filter on, the list shows what "모든 업무 보기" means: everything checked.
                         FilterList(
                             choices: choices,
-                            filter: model.filter.isActive ? model.filter : .pickingEvery(choices),
+                            filter: model.filter.isActive ? model.filter : model.filter.pickingEvery(choices),
                             milestoneLoads: model.milestoneLoads,
                             update: model.setFilter,
                             loadMilestones: { model.loadMilestones(of: $0) }

@@ -55,6 +55,41 @@ private func choices(
         #expect(visible(only([])).isEmpty)
     }
 
+    @Test func directOnlyHidesOnlyTheTaskAssignedThroughAGroup() throws {
+        let tasks = try basicTasks()
+        let filter = TaskFilter(directOnly: true)
+        #expect(filter.isActive)
+        let result = filter.apply(tasks)
+        #expect(Set(tasks.map(\.key)).subtracting(keys(result.visible)) == ["FE-1215"])
+        #expect(result.hiddenCount == 1)
+    }
+
+    @Test func directOnlyAndAProjectFilterBothApplyAndTheirHiddenCountsAdd() throws {
+        let tasks = try basicTasks()
+        var filter = TaskFilter(projects: [
+            fe: .init(code: "FE", milestones: nil),
+            app: .init(code: "APP", milestones: only([v100])),
+        ])
+        #expect(keys(filter.apply(tasks).visible) == ["FE-1203", "FE-1215", "APP-88", "APP-91"])
+        #expect(filter.apply(tasks).hiddenCount == 5)
+
+        filter.directOnly = true
+        #expect(keys(filter.apply(tasks).visible) == ["FE-1203", "APP-88", "APP-91"])
+        #expect(filter.apply(tasks).hiddenCount == 6)
+    }
+
+    @Test func turningTheProjectPartOnKeepsDirectOnly() throws {
+        let tasks = try basicTasks()
+        let filter = TaskFilter(directOnly: true).pickingEvery(choices(tasks: tasks))
+        #expect(filter.directOnly)
+        #expect(filter.apply(tasks).hiddenCount == 1)
+    }
+
+    @Test func settingsCountsIncludeTasksThatDirectOnlyHides() throws {
+        let listed = choices(TaskFilter(directOnly: true), tasks: try basicTasks(), projects: try basicProjects())
+        #expect(try #require(listed.first { $0.id == fe }).taskCount == 2)
+    }
+
     @Test func listsEveryProjectIBelongToWithProjectsThatHaveTasksFirst() throws {
         let listed = choices(tasks: try basicTasks(), projects: try basicProjects())
         #expect(listed.map(\.code) == ["APP", "FE", "OPS", "ADMIN"])
@@ -108,7 +143,7 @@ private func choices(
 
     @Test func turningTheFilterOnHidesNothingUntilSomethingIsUnchecked() throws {
         let tasks = try basicTasks()
-        var filter = TaskFilter.pickingEvery(choices(tasks: tasks))
+        var filter = TaskFilter.showAll.pickingEvery(choices(tasks: tasks))
         #expect(filter.isActive)
         #expect(filter.apply(tasks).hiddenCount == 0)
 
@@ -136,5 +171,17 @@ private func choices(
         let filter = try JSONDecoder().decode(TaskFilter.self, from: Data(json.utf8))
         #expect(filter == TaskFilter(projects: [app: .init(code: "APP", milestones: only([v100], withoutMilestone: true))]))
         #expect(try JSONDecoder().decode(TaskFilter.self, from: Data("{}".utf8)) == .showAll)
+        #expect(try JSONDecoder().decode(TaskFilter.self, from: Data(#"{"directOnly": true}"#.utf8)) == TaskFilter(directOnly: true))
+    }
+
+    @Test func aFilterSavedBeforeDirectOnlyExistedStillLoads() throws {
+        let saved = #"{"projects":{"3000000000000000001":{"code":"FE"}}}"#
+        let restored = try JSONDecoder().decode(TaskFilter.self, from: Data(saved.utf8))
+        #expect(restored == TaskFilter(projects: [fe: .init(code: "FE", milestones: nil)], directOnly: false))
+    }
+
+    @Test func aSavedFilterRoundTripsWithDirectOnly() throws {
+        let saved = TaskFilter(projects: [fe: .init(code: "FE", milestones: nil)], directOnly: true)
+        #expect(try JSONDecoder().decode(TaskFilter.self, from: JSONEncoder().encode(saved)) == saved)
     }
 }

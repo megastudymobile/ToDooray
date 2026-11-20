@@ -3,9 +3,12 @@ import Foundation
 
 /// Which tasks the menu bar and the panel show. It is a preference, so a project or
 /// milestone the user never picked stays hidden, including one that appears later.
+/// A task shows only when it passes both parts: the projects and milestones, and `directOnly`.
 struct TaskFilter: Equatable, Codable {
-    /// Keyed by project id. nil is no filter: every task shows.
+    /// Keyed by project id. nil shows every project.
     var projects: [String: ProjectSelection]?
+    /// Hides tasks that reach me only through a group.
+    var directOnly = false
 
     struct ProjectSelection: Equatable, Codable {
         /// Kept so a picked project with no open task can still be listed by name.
@@ -25,11 +28,12 @@ struct TaskFilter: Equatable, Codable {
         }
     }
 
-    static let showAll = TaskFilter(projects: nil)
+    static let showAll = TaskFilter()
 
-    var isActive: Bool { projects != nil }
+    var isActive: Bool { projects != nil || directOnly }
 
     func admits(_ task: DoorayTask) -> Bool {
+        if directOnly && !task.isDirectlyAssigned { return false }
         guard let projects else { return true }
         guard let selection = projects[task.projectID] else { return false }
         return selection.milestones?.admits(task.milestone) ?? true
@@ -38,6 +42,17 @@ struct TaskFilter: Equatable, Codable {
     func apply(_ tasks: [DoorayTask]) -> (visible: [DoorayTask], hiddenCount: Int) {
         let visible = tasks.filter(admits)
         return (visible, tasks.count - visible.count)
+    }
+}
+
+extension TaskFilter {
+    private enum CodingKeys: String, CodingKey { case projects, directOnly }
+
+    /// A filter saved before `directOnly` existed has no such key and must keep working.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        projects = try container.decodeIfPresent([String: ProjectSelection].self, forKey: .projects)
+        directOnly = try container.decodeIfPresent(Bool.self, forKey: .directOnly) ?? false
     }
 }
 
@@ -104,12 +119,14 @@ extension TaskFilter {
         }
     }
 
-    /// Turning the filter on picks every listed project whole, so nothing disappears until
-    /// the user unchecks something.
-    static func pickingEvery(_ choices: [ProjectChoice]) -> TaskFilter {
-        TaskFilter(projects: Dictionary(uniqueKeysWithValues: choices.map {
+    /// Turning the project part on picks every listed project whole, so nothing disappears
+    /// until the user unchecks something.
+    func pickingEvery(_ choices: [ProjectChoice]) -> TaskFilter {
+        var next = self
+        next.projects = Dictionary(uniqueKeysWithValues: choices.map {
             ($0.id, ProjectSelection(code: $0.code, milestones: nil))
-        }))
+        })
+        return next
     }
 
     mutating func setProject(_ project: ProjectChoice, picked: Bool) {

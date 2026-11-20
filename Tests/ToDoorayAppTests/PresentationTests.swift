@@ -214,10 +214,18 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
         #expect(title(state, filter: filter) == StatusTitle(symbol: .allDone, full: "할 일 없음", compact: ""))
     }
 
+    @Test func directOnlyCountsTheGroupTaskAsHidden() throws {
+        let state = loaded(try basicTasks())
+        let model = panel(state, filter: TaskFilter(directOnly: true))
+        #expect(model.header.openCount == 8)
+        #expect(model.filterNote == "필터 적용 중 · 숨긴 업무 1건")
+        #expect(title(state, filter: TaskFilter(directOnly: true)).compact == "8")
+    }
+
     @Test func theFilterNoteShowsOnlyWhileAFilterIsOn() throws {
         let tasks = try basicTasks()
         #expect(panel(loaded(tasks)).filterNote == nil)
-        let everything = TaskFilter.pickingEvery(TaskFilter.showAll.choices(tasks: tasks, projects: [], loadedMilestones: [:]))
+        let everything = TaskFilter.showAll.pickingEvery(TaskFilter.showAll.choices(tasks: tasks, projects: [], loadedMilestones: [:]))
         #expect(panel(loaded(tasks), filter: everything).filterNote == "필터 적용 중 · 숨긴 업무 0건")
         #expect(panel(.loading, filter: everything).filterNote == nil)
     }

@@ -15,6 +15,10 @@ enum Selection {
         return nil
     }
 
+    static func isDirectlyAssigned(_ post: PostDTO, me: MemberID) -> Bool {
+        post.assignees.contains { if case .member(me, _) = $0 { true } else { false } }
+    }
+
     static func referencesUnknownWorkflow(_ post: PostDTO, me: MemberID, in table: WorkflowTable) -> Bool {
         guard let id = myWorkflowID(in: post, me: me) else { return false }
         return table.classes[id] == nil

@@ -55,6 +55,12 @@ import Testing
         #expect(milestones["FE-1203"] == .some(nil))
     }
 
+    @Test func onlyTheTaskAssignedThroughAGroupIsIndirect() async throws {
+        let tasks = try await ScenarioHarness(try Scenario.named("basic")).fetch().get().tasks
+        #expect(tasks.count == 9)
+        #expect(tasks.filter { !$0.isDirectlyAssigned }.map(\.id) == ["5000000000000000003"])
+    }
+
     @Test func rateLimitWaitsRetryAfterThenBacksOff() async throws {
         let harness = ScenarioHarness(try Scenario.named("rate-limited"), maxConcurrentRequests: 1)
         _ = try await harness.fetch().get()

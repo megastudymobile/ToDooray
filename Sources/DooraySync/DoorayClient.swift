@@ -90,7 +90,7 @@ public actor DoorayClient {
             var tasks: [DoorayTask] = []
             for post in posts {
                 if let state = Selection.openState(of: post, me: me, in: table) {
-                    tasks.append(try DoorayTask(post, state: state))
+                    tasks.append(try DoorayTask(post, state: state, isDirectlyAssigned: Selection.isDirectlyAssigned(post, me: me)))
                 }
             }
             return tasks

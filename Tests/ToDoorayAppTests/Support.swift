@@ -17,6 +17,7 @@ func task(
     _ id: String,
     project: (id: String, code: String) = ("101", "FE"),
     milestone: Milestone? = nil,
+    direct: Bool = true,
     subject: String = "업무",
     due: String? = nil,
     priority: Priority = .normal,
@@ -32,7 +33,8 @@ func task(
         priority: priority,
         dueDate: due.map(at),
         updatedAt: at(updated),
-        state: .registered
+        state: .registered,
+        isDirectlyAssigned: direct
     )
 }
 
@@ -60,7 +62,9 @@ func basicTasks() throws -> [DoorayTask] {
         )
         let posts: [PostDTO] = try result("posts-\(project.id)-0.json")
         return try posts.compactMap { post in
-            try Selection.openState(of: post, me: me.id, in: table).map { try DoorayTask(post, state: $0) }
+            try Selection.openState(of: post, me: me.id, in: table).map {
+                try DoorayTask(post, state: $0, isDirectlyAssigned: Selection.isDirectlyAssigned(post, me: me.id))
+            }
         }
     }
 }

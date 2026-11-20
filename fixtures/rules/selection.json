@@ -1,14 +1,16 @@
 {
-  "rule": "docs/dooray-api.md 업무 선별 규칙 1–4",
+  "rule": "docs/dooray-api.md 업무 선별 규칙 1–4와 직접 지정",
   "input": "me, workflows(그 프로젝트의 id → class), post의 users.to(원본 API 모양), post의 workflowClass",
   "expect": "\"registered\" | \"working\" | null(제외)",
+  "direct": "내 member 항목이 있으면 true. 그룹에만 있거나 내 항목이 없으면 false",
   "cases": [
     {
       "name": "멤버 항목의 working → 보임",
       "me": "M1", "workflows": { "w1": "registered", "w2": "working", "w3": "closed", "w4": "backlog" },
       "workflowClass": "working",
       "to": [ { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w2" } } ],
-      "expect": "working"
+      "expect": "working",
+      "direct": true
     },
     {
       "name": "업무 전체는 working이어도 내 몫이 closed면 제외",
@@ -18,14 +20,16 @@
         { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w3" } },
         { "type": "member", "member": { "organizationMemberId": "M2" }, "workflow": { "id": "w2" } }
       ],
-      "expect": null
+      "expect": null,
+      "direct": true
     },
     {
       "name": "backlog는 제외",
       "me": "M1", "workflows": { "w1": "registered", "w2": "working", "w3": "closed", "w4": "backlog" },
       "workflowClass": "registered",
       "to": [ { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w4" } } ],
-      "expect": null
+      "expect": null,
+      "direct": true
     },
     {
       "name": "그룹 안의 내 항목",
@@ -35,7 +39,8 @@
         { "organizationMemberId": "M2", "workflowId": "w2" },
         { "organizationMemberId": "M1", "workflowId": "w1" }
       ] } } ],
-      "expect": "registered"
+      "expect": "registered",
+      "direct": false
     },
     {
       "name": "멤버 항목이 그룹 항목보다 우선 (그룹이 앞에 와도)",
@@ -45,28 +50,32 @@
         { "type": "group", "group": { "members": [ { "organizationMemberId": "M1", "workflowId": "w2" } ] } },
         { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w3" } }
       ],
-      "expect": null
+      "expect": null,
+      "direct": true
     },
     {
       "name": "내 항목이 없으면 업무 전체 상태로 (규칙 4)",
       "me": "M1", "workflows": { "w1": "registered", "w2": "working", "w3": "closed", "w4": "backlog" },
       "workflowClass": "registered",
       "to": [ { "type": "member", "member": { "organizationMemberId": "M2" }, "workflow": { "id": "w2" } } ],
-      "expect": "registered"
+      "expect": "registered",
+      "direct": false
     },
     {
       "name": "내 워크플로우 id가 목록에 없으면 업무 전체 상태로 (규칙 4)",
       "me": "M1", "workflows": { "w1": "registered", "w2": "working" },
       "workflowClass": "closed",
       "to": [ { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w9" } } ],
-      "expect": null
+      "expect": null,
+      "direct": true
     },
     {
       "name": "모르는 class 문자열은 못 찾은 것으로 (규칙 4)",
       "me": "M1", "workflows": { "w1": "registered", "w5": "archived" },
       "workflowClass": "working",
       "to": [ { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w5" } } ],
-      "expect": "working"
+      "expect": "working",
+      "direct": true
     },
     {
       "name": "emailUser 같은 다른 type은 무시",
@@ -76,14 +85,16 @@
         { "type": "emailUser", "emailUser": { "emailAddress": "partner@example.com" } },
         { "type": "member", "member": { "organizationMemberId": "M1" }, "workflow": { "id": "w2" } }
       ],
-      "expect": "working"
+      "expect": "working",
+      "direct": true
     },
     {
       "name": "내 항목도 업무 전체 상태도 없으면 제외",
       "me": "M1", "workflows": { "w1": "registered" },
       "workflowClass": null,
       "to": [],
-      "expect": null
+      "expect": null,
+      "direct": false
     }
   ]
 }

@@ -16,6 +16,9 @@ public struct DoorayTask: Sendable, Hashable, Identifiable {
     public let updatedAt: Date
     /// My own per-assignee state, not the post's overall `workflowClass`.
     public let state: OpenState
+    /// True only when a `member` entry of `users.to` holds me. A task that reaches me only
+    /// through a group, or where no entry of mine is found, is false.
+    public let isDirectlyAssigned: Bool
 
     public var key: String { "\(projectCode)-\(number)" }
 

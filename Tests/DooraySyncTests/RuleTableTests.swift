@@ -33,6 +33,7 @@ struct SelectionCase: Decodable, Sendable, CustomStringConvertible {
     let workflowClass: String?
     let to: [Assignee]
     let expect: String?
+    let direct: Bool
     var description: String { name }
 }
 
@@ -82,6 +83,7 @@ struct OrderingCase: Decodable, Sendable, CustomStringConvertible {
             fetchedAt: .distantPast
         )
         #expect(Selection.openState(of: post, me: c.me, in: table)?.rawValue == c.expect)
+        #expect(Selection.isDirectlyAssigned(post, me: c.me) == c.direct)
     }
 
     @Test(arguments: try loadCases("ordering", as: OrderingCase.self))
@@ -97,7 +99,8 @@ struct OrderingCase: Decodable, Sendable, CustomStringConvertible {
                 priority: Priority(wire: row.priority),
                 dueDate: try row.dueDate.map { try #require(parseISO8601($0)) },
                 updatedAt: try #require(parseISO8601(row.updatedAt)),
-                state: .registered
+                state: .registered,
+                isDirectlyAssigned: true
             )
         }
         let items = Agenda.items(tasks, now: try #require(parseISO8601(c.now)), calendar: try calendar(in: c.timeZone))
@@ -147,7 +150,8 @@ struct OrderingCase: Decodable, Sendable, CustomStringConvertible {
             priority: .normal,
             dueDate: nil,
             updatedAt: .distantPast,
-            state: .working
+            state: .working,
+            isDirectlyAssigned: true
         )
         let expected = "https://acme.dooray.com/task/101/3001"
         #expect(task.webURL(tenant: try #require(URL(string: "https://acme.dooray.com"))).absoluteString == expected)

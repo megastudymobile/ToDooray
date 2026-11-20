@@ -85,5 +85,5 @@
 | 파일 | 규칙 | 입력 |
 | --- | --- | --- |
 | `urgency.json` | 긴급도 | `now`, `timeZone`, `dueDate` |
-| `selection.json` | 업무 선별 규칙 1–4 | `me`, `workflows`(ID → class), 업무의 `workflowClass`, API 모양 그대로의 `users.to` |
+| `selection.json` | 업무 선별 규칙 1–4와 직접 지정. 판정은 `expect`, 직접 지정 여부는 `direct` | `me`, `workflows`(ID → class), 업무의 `workflowClass`, API 모양 그대로의 `users.to` |
 | `ordering.json` | 정렬과 동률 처리 | `now`, `timeZone`, 순서를 섞은 `tasks` |

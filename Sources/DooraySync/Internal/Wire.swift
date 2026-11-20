@@ -205,7 +205,7 @@ func parseISO8601(_ text: String) -> Date? {
 }
 
 extension DoorayTask {
-    init(_ post: PostDTO, state: OpenState) throws(DoorayError) {
+    init(_ post: PostDTO, state: OpenState, isDirectlyAssigned: Bool) throws(DoorayError) {
         // An unreadable deadline is an error, never "no due date": the app must not hide one.
         var dueDate: Date?
         if let raw = post.dueDate {
@@ -225,7 +225,8 @@ extension DoorayTask {
             priority: Priority(wire: post.priority),
             dueDate: dueDate,
             updatedAt: updatedAt,
-            state: state
+            state: state,
+            isDirectlyAssigned: isDirectlyAssigned
         )
     }
 }

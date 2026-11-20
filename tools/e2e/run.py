@@ -7,10 +7,10 @@ prints against the scenario's expected.json, the same file the unit tests use.
 A scenario in FILTERS also gets a task filter through the console, and the run checks
 which tasks stay visible, the counts, and that the change sent no request.
 
-The app gets a fake token through MEGAMIND_CONFIG, which keeps its settings in memory, so
+The app gets a fake token through TODOORAY_CONFIG, which keeps its settings in memory, so
 a run never reads or writes the Keychain or the saved addresses.
 
-Usage: run.py --app build/Build/Products/Debug/MegaMind.app [--scenario basic]
+Usage: run.py --app build/Build/Products/Debug/ToDooray.app [--scenario basic]
 """
 import argparse
 import json
@@ -72,7 +72,7 @@ class MockServer:
 class App:
     def __init__(self, bundle: Path, env: dict, stderr):
         self.process = subprocess.Popen(
-            [str(bundle / "Contents" / "MacOS" / "MegaMind")],
+            [str(bundle / "Contents" / "MacOS" / "ToDooray")],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr, text=True, env=env)
         self.lines = []
         self.events = queue.Queue()
@@ -193,8 +193,8 @@ def run(bundle: Path, directory: Path, spec: dict) -> str:
             "webBase": "https://example.dooray.com",
             "token": spec["token"],
         }))
-        env = dict(os.environ, MEGAMIND_CONSOLE="1", MEGAMIND_CONFIG=str(config),
-                   MEGAMIND_NOW=spec["now"], TZ=spec["timeZone"])
+        env = dict(os.environ, TODOORAY_CONSOLE="1", TODOORAY_CONFIG=str(config),
+                   TODOORAY_NOW=spec["now"], TZ=spec["timeZone"])
         try:
             with open(Path(work) / "stderr.log", "w+") as stderr:
                 app = App(bundle, env, stderr)
@@ -214,7 +214,7 @@ def main() -> int:
     parser.add_argument("--app", required=True, type=Path)
     parser.add_argument("--scenario")
     args = parser.parse_args()
-    if not (args.app / "Contents" / "MacOS" / "MegaMind").exists():
+    if not (args.app / "Contents" / "MacOS" / "ToDooray").exists():
         print(f"no app bundle at {args.app}; run `make app` first", file=sys.stderr)
         return 2
 

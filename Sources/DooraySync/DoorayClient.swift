@@ -14,7 +14,7 @@ public actor DoorayClient {
     private let token: APIToken
     private let transport: any HTTPTransport
     private let policy: SyncPolicy
-    private let log = Logger(subsystem: "MegaMind", category: "sync")
+    private let log = Logger(subsystem: "ToDooray", category: "sync")
 
     private var memberID: MemberID?
     private var workflowTables: [ProjectID: WorkflowTable] = [:]

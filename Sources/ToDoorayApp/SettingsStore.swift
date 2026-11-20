@@ -20,19 +20,19 @@ final class SettingsStore {
 
     private static let account = "dooray-api-token"
     private static let filterKey = "taskFilter"
-    private static let log = Logger(subsystem: "MegaMind", category: "settings")
+    private static let log = Logger(subsystem: "ToDooray", category: "settings")
     private var backend: Backend
 
     init(environment: [String: String] = ProcessInfo.processInfo.environment, bundle: Bundle = .main) {
         #if DEBUG
         // End-to-end runs pass a fake token here so they can never read or replace a real one.
-        if let path = environment["MEGAMIND_CONFIG"] {
+        if let path = environment["TODOORAY_CONFIG"] {
             let config = Self.config(at: path)
             backend = .memory(config.settings, config.filter)
             return
         }
         #endif
-        backend = .system(defaults: .standard, keychainService: bundle.bundleIdentifier ?? "MegaMind")
+        backend = .system(defaults: .standard, keychainService: bundle.bundleIdentifier ?? "ToDooray")
     }
 
     func load() -> Settings {

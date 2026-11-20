@@ -1,6 +1,6 @@
 # Dooray API 규격
 
-MegaMind가 쓰는 Dooray 공식 API와 업무 선별 규칙을 적는다. macOS 앱과 이후의 Windows 앱이 이 문서와 `fixtures/`를 같은 기준으로 쓴다.
+ToDooray가 쓰는 Dooray 공식 API와 업무 선별 규칙을 적는다. macOS 앱과 이후의 Windows 앱이 이 문서와 `fixtures/`를 같은 기준으로 쓴다.
 
 근거는 두 가지다. 호출 형식은 `@bifos/dooray-cli` 0.33.1의 소스에서 확인했다. 응답 필드는 2026-11-19에 실제 계정으로 받은 업무 241건의 구조에서 확인했다.
 

@@ -1,7 +1,7 @@
 import DooraySync
 import Foundation
 import Testing
-@testable import MegaMindApp
+@testable import ToDoorayApp
 
 private let fe = "3000000000000000001"
 private let app = "3000000000000000002"

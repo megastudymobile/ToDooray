@@ -1,7 +1,7 @@
 import DooraySync
 import Foundation
 import Testing
-@testable import MegaMindApp
+@testable import ToDoorayApp
 
 private let earlier = at("2026-11-19T11:00:00+09:00")
 private let previous = Snapshot(tasks: [task("1")], fetchedAt: earlier)

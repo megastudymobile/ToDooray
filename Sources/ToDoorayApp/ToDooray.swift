@@ -1,8 +1,8 @@
 import AppKit
 import DooraySync
 
-/// The app target is one line: `MegaMind.run()`.
-public enum MegaMind {
+/// The app target is one line: `ToDooray.run()`.
+public enum ToDooray {
     /// Plain AppKit lifecycle. A SwiftUI `MenuBarExtra` cannot be opened or closed from code.
     @MainActor
     public static func run() {
@@ -88,7 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private static func clock() -> () -> Date {
         #if DEBUG
-        if let text = ProcessInfo.processInfo.environment["MEGAMIND_NOW"],
+        if let text = ProcessInfo.processInfo.environment["TODOORAY_NOW"],
            let frozen = try? Date.ISO8601FormatStyle().parse(text) {
             return { frozen }
         }
@@ -100,7 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// the settings window.
     private static func makeMainMenu() -> NSMenu {
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "MegaMind 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "ToDooray 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
         let editMenu = NSMenu(title: "편집")
         editMenu.addItem(withTitle: "실행 취소", action: Selector(("undo:")), keyEquivalent: "z")

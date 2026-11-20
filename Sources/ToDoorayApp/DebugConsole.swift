@@ -4,7 +4,7 @@ import DooraySync
 
 /// Makes the real app scriptable in Debug builds. It is compiled out of Release.
 ///
-/// Enabled with `MEGAMIND_CONSOLE=1` when the binary inside the bundle is run from a shell.
+/// Enabled with `TODOORAY_CONSOLE=1` when the binary inside the bundle is run from a shell.
 /// One command per stdin line, one JSON object per stdout line:
 ///
 ///     state            {"type":"state", ...}
@@ -20,13 +20,13 @@ import DooraySync
 /// driver waits for `"kind":"loaded"` instead of sleeping. `windowNumber` works with
 /// `screencapture -l`. Closing stdin quits the app.
 ///
-/// Two more Debug-only variables make a run hermetic. `MEGAMIND_CONFIG=<file>` reads
+/// Two more Debug-only variables make a run hermetic. `TODOORAY_CONFIG=<file>` reads
 /// `{"apiBase": …, "webBase": …, "token": …, "filter": …}` into memory in place of the
-/// Keychain and UserDefaults. `filter` is optional and takes the same JSON as the command. `MEGAMIND_NOW=<ISO 8601>` freezes the clock from launch.
+/// Keychain and UserDefaults. `filter` is optional and takes the same JSON as the command. `TODOORAY_NOW=<ISO 8601>` freezes the clock from launch.
 @MainActor
 final class DebugConsole {
     static var isEnabled: Bool {
-        ProcessInfo.processInfo.environment["MEGAMIND_CONSOLE"] == "1"
+        ProcessInfo.processInfo.environment["TODOORAY_CONSOLE"] == "1"
     }
 
     private let model: AppModel

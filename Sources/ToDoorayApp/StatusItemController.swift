@@ -23,7 +23,7 @@ final class StatusItemController: NSObject {
         self.onClick = onClick
         super.init()
 
-        item.autosaveName = "MegaMind.status"
+        item.autosaveName = "ToDooray.status"
         // Without `.removalAllowed`, dragging the item out of the menu bar cannot strand the app.
         item.behavior = []
         if let button = item.button {
@@ -103,7 +103,7 @@ final class StatusItemController: NSObject {
 
     private func apply() {
         guard let button = item.button, let title else { return }
-        let image = NSImage(systemSymbolName: symbolName(title.symbol), accessibilityDescription: "MegaMind")
+        let image = NSImage(systemSymbolName: symbolName(title.symbol), accessibilityDescription: "ToDooray")
         image?.isTemplate = true
         button.image = image
         let text = switch ladder.form {

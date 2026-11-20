@@ -10,7 +10,7 @@ enum PanelAction: Equatable {
 }
 
 /// The glass panel under the status item: a borderless, non-activating NSPanel hosting
-/// `PanelView`. Opening it never activates MegaMind, so the frontmost app keeps its focus.
+/// `PanelView`. Opening it never activates ToDooray, so the frontmost app keeps its focus.
 @MainActor
 final class PanelController {
     private let model: AppModel

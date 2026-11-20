@@ -1,27 +1,27 @@
-# XcodeGen spec for the .app bundle. `make app` generates App/MegaMind.xcodeproj and
+# XcodeGen spec for the .app bundle. `make app` generates App/ToDooray.xcodeproj and
 # App/Info.plist from this file. Both are git-ignored. All code lives in the root package,
 # and the app target is the one file in Shell/.
-name: MegaMind
+name: ToDooray
 options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
 packages:
-  MegaMindPackage:
+  ToDoorayPackage:
     path: ..
 targets:
-  MegaMind:
+  ToDooray:
     type: application
     platform: macOS
     sources:
       - path: Shell
     dependencies:
-      - package: MegaMindPackage
-        product: MegaMindApp
+      - package: ToDoorayPackage
+        product: ToDoorayApp
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: MegaMind
+        CFBundleDisplayName: ToDooray
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDevelopmentRegion: ko
@@ -34,9 +34,9 @@ targets:
       base:
         # Placeholder. Fix it before the first teammate installs the app: the Keychain item,
         # the login item and UserDefaults are all keyed on it.
-        MEGAMIND_BUNDLE_ID: com.megamind.MegaMind
-        PRODUCT_BUNDLE_IDENTIFIER: $(MEGAMIND_BUNDLE_ID)$(MEGAMIND_BUNDLE_ID_SUFFIX)
-        PRODUCT_NAME: MegaMind
+        TODOORAY_BUNDLE_ID: com.megastudymobile.ToDooray
+        PRODUCT_BUNDLE_IDENTIFIER: $(TODOORAY_BUNDLE_ID)$(TODOORAY_BUNDLE_ID_SUFFIX)
+        PRODUCT_NAME: ToDooray
         MARKETING_VERSION: 0.1.0
         CURRENT_PROJECT_VERSION: 1
         SWIFT_VERSION: "6.0"
@@ -48,12 +48,12 @@ targets:
         Debug:
           # A Debug build keeps its own Keychain item, defaults and login item, apart from
           # an installed Release build.
-          MEGAMIND_BUNDLE_ID_SUFFIX: .debug
+          TODOORAY_BUNDLE_ID_SUFFIX: .debug
 schemes:
-  MegaMind:
+  ToDooray:
     build:
       targets:
-        MegaMind: all
+        ToDooray: all
     run:
       config: Debug
     archive:

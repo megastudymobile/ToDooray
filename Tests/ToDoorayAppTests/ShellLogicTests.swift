@@ -2,7 +2,7 @@ import CoreGraphics
 import DooraySync
 import Foundation
 import Testing
-@testable import MegaMindApp
+@testable import ToDoorayApp
 
 @Suite struct PanelPlacementTests {
     private let size = CGSize(width: 344, height: 400)

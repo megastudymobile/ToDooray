@@ -1,7 +1,7 @@
 import DooraySync
 import Foundation
 import Testing
-@testable import MegaMindApp
+@testable import ToDoorayApp
 
 private func loaded(_ tasks: [DoorayTask], fetchedAt: Date = noon) -> AppState {
     .loaded(Snapshot(tasks: tasks, fetchedAt: fetchedAt))

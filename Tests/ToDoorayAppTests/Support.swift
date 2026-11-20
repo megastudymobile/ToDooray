@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import DooraySync
-@testable import MegaMindApp
+@testable import ToDoorayApp
 
 let seoul: Calendar = {
     var calendar = Calendar(identifier: .gregorian)

@@ -1,3 +1,3 @@
-import MegaMindApp
+import ToDoorayApp
 
-MegaMind.run()
+ToDooray.run()

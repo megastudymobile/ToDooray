@@ -2,15 +2,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "MegaMind",
+    name: "ToDooray",
     platforms: [.macOS(.v14)],
     products: [
-        .library(name: "MegaMindApp", targets: ["MegaMindApp"]),
+        .library(name: "ToDoorayApp", targets: ["ToDoorayApp"]),
     ],
     targets: [
         .target(name: "DooraySync"),
-        .target(name: "MegaMindApp", dependencies: ["DooraySync"]),
+        .target(name: "ToDoorayApp", dependencies: ["DooraySync"]),
         .testTarget(name: "DooraySyncTests", dependencies: ["DooraySync"]),
-        .testTarget(name: "MegaMindAppTests", dependencies: ["MegaMindApp", "DooraySync"]),
+        .testTarget(name: "ToDoorayAppTests", dependencies: ["ToDoorayApp", "DooraySync"]),
     ]
 )

@@ -25,7 +25,7 @@ final class SettingsWindowController {
         let content = NSHostingController(rootView: SettingsView(model: model))
         let window = NSWindow(contentViewController: content)
         window.styleMask = [.titled, .closable]
-        window.title = "MegaMind 설정"
+        window.title = "ToDooray 설정"
         window.isReleasedWhenClosed = false
         // SwiftUI sizes the window a moment after it appears, which is too late to center it.
         window.setContentSize(content.view.fittingSize)

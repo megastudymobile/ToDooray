@@ -138,7 +138,7 @@ private struct FilterSection: View {
     private static let listHeight: CGFloat = 180
 
     var body: some View {
-        let choices = model.filter.choices(for: model.state.snapshot?.tasks ?? [])
+        let choices = model.filterChoices
         Section {
             Toggle("모든 업무 보기", isOn: Binding(
                 get: { !model.filter.isActive },

@@ -65,4 +65,15 @@ func basicTasks() throws -> [DoorayTask] {
     }
 }
 
+/// Every project of fixtures/scenarios/basic, ADMIN included though it has no open task.
+func basicProjects() throws -> [DoorayProject] {
+    let url = URL(filePath: #filePath)
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .appending(path: "fixtures/scenarios/basic/responses/projects-0.json")
+    let projects: [ProjectDTO] = try #require(JSONDecoder().decode(Envelope<[ProjectDTO]>.self, from: Data(contentsOf: url)).result)
+    return projects.map { DoorayProject(id: $0.id, code: $0.code) }
+}
+
 let noon = at("2026-11-19T12:00:00+09:00")

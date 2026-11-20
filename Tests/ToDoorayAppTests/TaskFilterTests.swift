@@ -19,6 +19,15 @@ private func keys(_ tasks: [DoorayTask]) -> Set<String> {
     Set(tasks.map(\.key))
 }
 
+private func choices(
+    _ filter: TaskFilter = .showAll,
+    tasks: [DoorayTask],
+    projects: [DoorayProject] = [],
+    loaded: [String: [Milestone]] = [:]
+) -> [ProjectChoice] {
+    filter.choices(tasks: tasks, projects: projects, loadedMilestones: loaded)
+}
+
 @Suite struct TaskFilterTests {
     @Test func noFilterShowsEveryTask() throws {
         let tasks = try basicTasks()
@@ -46,19 +55,47 @@ private func keys(_ tasks: [DoorayTask]) -> Set<String> {
         #expect(visible(only([])).isEmpty)
     }
 
+    @Test func listsEveryProjectIBelongToWithProjectsThatHaveTasksFirst() throws {
+        let listed = choices(tasks: try basicTasks(), projects: try basicProjects())
+        #expect(listed.map(\.code) == ["APP", "FE", "OPS", "ADMIN"])
+        #expect(listed.map(\.taskCount) == [4, 2, 3, 0])
+        #expect(listed.last?.milestones == [MilestoneChoice(milestone: nil, taskCount: 0)])
+    }
+
+    @Test func eachGroupSortsByCodeWithNumbersInOrder() {
+        let tasks = [task("1", project: ("1", "Z1")), task("2", project: ("2", "P10")), task("3", project: ("3", "P9"))]
+        let projects = [("4", "P2"), ("5", "A"), ("2", "P10")].map { DoorayProject(id: $0.0, code: $0.1) }
+        #expect(choices(tasks: tasks, projects: projects).map(\.code) == ["P9", "P10", "Z1", "A", "P2"])
+    }
+
     @Test func choicesListPicksWithoutTasksByTheirStoredNames() throws {
         let filter = TaskFilter(projects: [
             app: .init(code: "APP", milestones: only([Milestone(id: "7000000000000000009", name: "v0.9.0")])),
             "3000000000000000009": .init(code: "OLD", milestones: nil),
         ])
-        let choices = filter.choices(for: try basicTasks())
+        let listed = choices(filter, tasks: try basicTasks(), projects: try basicProjects())
 
-        #expect(choices.map(\.code) == ["APP", "FE", "OLD", "OPS"])
-        #expect(choices.map(\.taskCount) == [4, 2, 0, 3])
-        let appMilestones = try #require(choices.first).milestones
+        #expect(listed.map(\.code) == ["APP", "FE", "OPS", "ADMIN", "OLD"])
+        #expect(listed.map(\.taskCount) == [4, 2, 3, 0, 0])
+        let appMilestones = try #require(listed.first).milestones
         #expect(appMilestones.map(\.name) == ["v0.9.0", "v1.0.0", "v1.0.1", "단계 없음"])
         #expect(appMilestones.map(\.taskCount) == [0, 2, 1, 1])
-        #expect(choices[2].milestones == [MilestoneChoice(milestone: nil, taskCount: 0)])
+        #expect(listed[4].milestones == [MilestoneChoice(milestone: nil, taskCount: 0)])
+    }
+
+    @Test func loadedMilestonesJoinTheOnesSeenOnTasksOnce() throws {
+        let v110 = Milestone(id: "7000000000000000003", name: "v1.1.0")
+        let admin = "3000000000000000004"
+        let listed = choices(
+            tasks: try basicTasks(),
+            projects: try basicProjects(),
+            loaded: [app: [v100, v101, v110], admin: [Milestone(id: "7000000000000000020", name: "2분기")]]
+        )
+
+        let appMilestones = try #require(listed.first { $0.id == app }).milestones
+        #expect(appMilestones.map(\.name) == ["v1.0.0", "v1.0.1", "v1.1.0", "단계 없음"])
+        #expect(appMilestones.map(\.taskCount) == [2, 1, 0, 1])
+        #expect(try #require(listed.first { $0.id == admin }).milestones.map(\.name) == ["2분기", "단계 없음"])
     }
 
     @Test func milestonesSortByNameWithNumbersInOrder() {
@@ -66,16 +103,16 @@ private func keys(_ tasks: [DoorayTask]) -> Set<String> {
             task("1", milestone: Milestone(id: "a", name: "v1.0.10")),
             task("2", milestone: Milestone(id: "b", name: "v1.0.9")),
         ]
-        #expect(TaskFilter.showAll.choices(for: tasks).first?.milestones.map(\.name) == ["v1.0.9", "v1.0.10", "단계 없음"])
+        #expect(choices(tasks: tasks).first?.milestones.map(\.name) == ["v1.0.9", "v1.0.10", "단계 없음"])
     }
 
     @Test func turningTheFilterOnHidesNothingUntilSomethingIsUnchecked() throws {
         let tasks = try basicTasks()
-        var filter = TaskFilter.pickingEvery(TaskFilter.showAll.choices(for: tasks))
+        var filter = TaskFilter.pickingEvery(choices(tasks: tasks))
         #expect(filter.isActive)
         #expect(filter.apply(tasks).hiddenCount == 0)
 
-        let appChoice = try #require(filter.choices(for: tasks).first { $0.id == app })
+        let appChoice = try #require(choices(filter, tasks: tasks).first { $0.id == app })
         filter.setEveryMilestone(of: appChoice, picked: false)
         #expect(filter.apply(tasks).hiddenCount == 0)
 
@@ -83,7 +120,7 @@ private func keys(_ tasks: [DoorayTask]) -> Set<String> {
         filter.setMilestone(nil, of: appChoice, picked: false)
         #expect(keys(filter.apply(tasks).visible.filter { $0.projectID == app }) == ["APP-97"])
 
-        let feChoice = try #require(filter.choices(for: tasks).first { $0.id == fe })
+        let feChoice = try #require(choices(filter, tasks: tasks).first { $0.id == fe })
         filter.setProject(feChoice, picked: false)
         #expect(filter.apply(tasks).hiddenCount == 5)
 

@@ -3,7 +3,8 @@ import DooraySync
 import Observation
 
 /// Owns the app state and the sync lifecycle. It is the only writer of `state`, `now`,
-/// `settings` and `filter`. Views, the status item, the panel and the debug console read them.
+/// `settings`, `filter` and `milestoneLoads`. Views, the status item, the panel and the debug
+/// console read them.
 @MainActor
 @Observable
 final class AppModel {
@@ -13,6 +14,16 @@ final class AppModel {
     private(set) var now: Date
     private(set) var settings: Settings
     private(set) var filter: TaskFilter
+    /// Keyed by project id. Filled only while the settings window shows a project's
+    /// milestones, never by the poll.
+    private(set) var milestoneLoads: [String: MilestoneLoad] = [:]
+
+    enum MilestoneLoad: Equatable {
+        /// The task ends when the load settles.
+        case loading(Task<Void, Never>)
+        case loaded([Milestone])
+        case failed(DoorayError)
+    }
 
     @ObservationIgnored private let store: SettingsStore
     @ObservationIgnored private var clock: () -> Date
@@ -62,9 +73,9 @@ final class AppModel {
 
         let generation = generation
         syncTask = Task { [weak self] in
-            let result: Result<[DoorayTask], DoorayError>
+            let result: Result<OpenTasks, DoorayError>
             do throws(DoorayError) {
-                result = .success(try await client.fetchOpenTasks().tasks)
+                result = .success(try await client.fetchOpenTasks())
             } catch {
                 result = .failure(error)
             }
@@ -107,6 +118,56 @@ final class AppModel {
         store.saveFilter(filter)
     }
 
+    var filterChoices: [ProjectChoice] {
+        filter.choices(
+            tasks: state.snapshot?.tasks ?? [],
+            projects: state.snapshot?.projects ?? [],
+            loadedMilestones: milestoneLoads.compactMapValues { load in
+                if case .loaded(let milestones) = load { milestones } else { nil }
+            }
+        )
+    }
+
+    /// Starts loading a project's milestones unless they are loaded or loading. A failed load
+    /// starts again, which is the retry.
+    @discardableResult
+    func loadMilestones(of projectID: String) -> Task<Void, Never> {
+        switch milestoneLoads[projectID] {
+        case .loading(let task): return task
+        case .loaded: return Task {}
+        case .failed, nil: break
+        }
+        guard let client else { return Task {} }
+        let generation = generation
+        let task = Task { [weak self] in
+            let result: Result<[Milestone], DoorayError>
+            do throws(DoorayError) {
+                result = .success(try await client.fetchMilestones(projectID: projectID))
+            } catch {
+                result = .failure(error)
+            }
+            guard let self, generation == self.generation else { return }
+            self.milestoneLoads[projectID] = switch result {
+            case .success(let milestones): .loaded(milestones)
+            case .failure(.cancelled): nil
+            case .failure(let error): .failed(error)
+            }
+        }
+        milestoneLoads[projectID] = .loading(task)
+        return task
+    }
+
+    /// Called each time the settings window opens, so milestones added or closed in Dooray
+    /// since the last look show up. Loads in flight are kept and not started twice.
+    func reloadMilestones() {
+        milestoneLoads = milestoneLoads.filter { _, load in
+            if case .loading = load { true } else { false }
+        }
+        for (projectID, selection) in filter.projects ?? [:] where selection.milestones != nil {
+            loadMilestones(of: projectID)
+        }
+    }
+
     func webURL(for task: DoorayTask) -> URL? {
         settings.webBase.map(task.webURL(tenant:))
     }
@@ -123,6 +184,10 @@ final class AppModel {
         syncTask?.cancel()
         syncTask = nil
         lastAttemptEnd = nil
+        for case .loading(let task) in milestoneLoads.values {
+            task.cancel()
+        }
+        milestoneLoads = [:]
         client = settings.isComplete ? settings.token.map { DoorayClient(apiBase: settings.apiBase, token: $0) } : nil
         apply(.configured(complete: settings.isComplete))
         refresh(reason)

@@ -4,7 +4,7 @@ import Testing
 @testable import ToDoorayApp
 
 private func loaded(_ tasks: [DoorayTask], fetchedAt: Date = noon) -> AppState {
-    .loaded(Snapshot(tasks: tasks, fetchedAt: fetchedAt))
+    .loaded(Snapshot(tasks: tasks, projects: [], fetchedAt: fetchedAt))
 }
 
 private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = .showAll) -> StatusTitle {
@@ -43,7 +43,7 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
     }
 
     @Test func aStaleListRendersLikeAFreshOne() throws {
-        let snapshot = Snapshot(tasks: try basicTasks(), fetchedAt: noon)
+        let snapshot = Snapshot(tasks: try basicTasks(), projects: [], fetchedAt: noon)
         #expect(title(.stale(snapshot, .rateLimited)) == title(.loaded(snapshot)))
     }
 
@@ -157,13 +157,13 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
         #expect(panel(loaded(tasks, fetchedAt: noon.addingTimeInterval(-3 * 60))).footer == "3분 전 업데이트")
         #expect(panel(loaded(tasks, fetchedAt: noon.addingTimeInterval(-2 * 3600))).footer == "2시간 전 업데이트")
 
-        let snapshot = Snapshot(tasks: tasks, fetchedAt: at("2026-11-19T11:57:00+09:00"))
+        let snapshot = Snapshot(tasks: tasks, projects: [], fetchedAt: at("2026-11-19T11:57:00+09:00"))
         #expect(panel(.stale(snapshot, .network(.notConnectedToInternet))).footer == "업데이트 실패 · 네트워크 연결 없음 · 11:57 기준")
         #expect(panel(.stale(snapshot, .http(status: 502))).footer == "업데이트 실패 · Dooray 서버 오류 (502) · 11:57 기준")
     }
 
     @Test func aStaleListKeepsItsRows() throws {
-        let snapshot = Snapshot(tasks: try basicTasks(), fetchedAt: noon)
+        let snapshot = Snapshot(tasks: try basicTasks(), projects: [], fetchedAt: noon)
         #expect(panel(.stale(snapshot, .rateLimited)).body == panel(.loaded(snapshot)).body)
     }
 
@@ -217,7 +217,7 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
     @Test func theFilterNoteShowsOnlyWhileAFilterIsOn() throws {
         let tasks = try basicTasks()
         #expect(panel(loaded(tasks)).filterNote == nil)
-        let everything = TaskFilter.pickingEvery(TaskFilter.showAll.choices(for: tasks))
+        let everything = TaskFilter.pickingEvery(TaskFilter.showAll.choices(tasks: tasks, projects: [], loadedMilestones: [:]))
         #expect(panel(loaded(tasks), filter: everything).filterNote == "필터 적용 중 · 숨긴 업무 0건")
         #expect(panel(.loading, filter: everything).filterNote == nil)
     }

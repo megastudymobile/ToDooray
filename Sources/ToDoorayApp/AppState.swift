@@ -4,6 +4,8 @@ import Foundation
 /// The last successful sync. It stores no urgency: that is derived from the time at render.
 struct Snapshot: Equatable {
     let tasks: [DoorayTask]
+    /// Every project I belong to, so the filter can list one before it has a task.
+    let projects: [DoorayProject]
     let fetchedAt: Date
 }
 
@@ -29,7 +31,7 @@ enum AppState: Equatable {
     enum Event: Equatable {
         /// Settings were loaded or saved. `complete` means a token and a web address exist.
         case configured(complete: Bool)
-        case synced(Result<[DoorayTask], DoorayError>, at: Date)
+        case synced(Result<OpenTasks, DoorayError>, at: Date)
     }
 
     /// The only way the state changes.
@@ -43,8 +45,8 @@ enum AppState: Equatable {
             switch (self, result) {
             case (.needsSetup, _), (_, .failure(.cancelled)):
                 return self
-            case (_, .success(let tasks)):
-                return .loaded(Snapshot(tasks: tasks, fetchedAt: date))
+            case (_, .success(let open)):
+                return .loaded(Snapshot(tasks: open.tasks, projects: open.projects, fetchedAt: date))
             case (_, .failure(.unauthorized)), (.authFailed, .failure):
                 return .authFailed
             case (.loaded(let snapshot), .failure(let error)), (.stale(let snapshot, _), .failure(let error)):

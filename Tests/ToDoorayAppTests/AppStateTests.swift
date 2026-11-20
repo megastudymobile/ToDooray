@@ -4,8 +4,8 @@ import Testing
 @testable import ToDoorayApp
 
 private let earlier = at("2026-11-19T11:00:00+09:00")
-private let previous = Snapshot(tasks: [task("1")], fetchedAt: earlier)
-private let fresh = [task("2"), task("3")]
+private let previous = Snapshot(tasks: [task("1")], projects: [], fetchedAt: earlier)
+private let fresh = OpenTasks(tasks: [task("2"), task("3")], projects: [DoorayProject(id: "101", code: "FE")])
 
 struct Transition: Sendable, CustomStringConvertible {
     let from: AppState
@@ -20,9 +20,9 @@ struct Transition: Sendable, CustomStringConvertible {
         Transition(from: .loaded(previous), event: .configured(complete: true), to: .loading),
         Transition(from: .authFailed, event: .configured(complete: true), to: .loading),
 
-        Transition(from: .loading, event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh, fetchedAt: noon))),
-        Transition(from: .stale(previous, .rateLimited), event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh, fetchedAt: noon))),
-        Transition(from: .failed(.rateLimited), event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh, fetchedAt: noon))),
+        Transition(from: .loading, event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh.tasks, projects: fresh.projects, fetchedAt: noon))),
+        Transition(from: .stale(previous, .rateLimited), event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh.tasks, projects: fresh.projects, fetchedAt: noon))),
+        Transition(from: .failed(.rateLimited), event: .synced(.success(fresh), at: noon), to: .loaded(Snapshot(tasks: fresh.tasks, projects: fresh.projects, fetchedAt: noon))),
 
         Transition(from: .loading, event: .synced(.failure(.unauthorized), at: noon), to: .authFailed),
         Transition(from: .loaded(previous), event: .synced(.failure(.unauthorized), at: noon), to: .authFailed),

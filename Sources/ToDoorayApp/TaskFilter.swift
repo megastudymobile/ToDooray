@@ -43,7 +43,8 @@ struct TaskFilter: Equatable, Codable {
 
 // MARK: - Settings list
 
-/// One project row of the settings list. Derived from the open tasks and the filter, never stored.
+/// One project row of the settings list. Derived from the last sync, the loaded milestones
+/// and the filter, never stored.
 struct ProjectChoice: Equatable, Identifiable {
     let id: String
     let code: String
@@ -61,22 +62,30 @@ struct MilestoneChoice: Equatable, Hashable {
 }
 
 extension TaskFilter {
-    /// Every project with an open task, plus every project and milestone the filter picks,
-    /// so a pick never vanishes from the list while it has no tasks.
-    func choices(for tasks: [DoorayTask]) -> [ProjectChoice] {
+    /// Every project I belong to, plus every project and milestone the filter picks, so a
+    /// pick never vanishes from the list while it has no tasks. Projects with open tasks
+    /// come first.
+    func choices(tasks: [DoorayTask], projects: [DoorayProject], loadedMilestones: [String: [Milestone]]) -> [ProjectChoice] {
         var codes: [String: String] = [:]
         var milestones: [String: [String: Milestone]] = [:]
-        for (id, selection) in projects ?? [:] {
+        func add(_ milestone: Milestone, to projectID: String) {
+            milestones[projectID, default: [:]][milestone.id] = milestone
+        }
+        for (id, selection) in self.projects ?? [:] {
             codes[id] = selection.code
             for (milestoneID, name) in selection.milestones?.picked ?? [:] {
-                milestones[id, default: [:]][milestoneID] = Milestone(id: milestoneID, name: name)
+                add(Milestone(id: milestoneID, name: name), to: id)
             }
+        }
+        for project in projects {
+            codes[project.id] = project.code
+        }
+        for (projectID, loaded) in loadedMilestones {
+            loaded.forEach { add($0, to: projectID) }
         }
         for task in tasks {
             codes[task.projectID] = task.projectCode
-            if let milestone = task.milestone {
-                milestones[task.projectID, default: [:]][milestone.id] = milestone
-            }
+            task.milestone.map { add($0, to: task.projectID) }
         }
 
         return codes.map { id, code in
@@ -89,7 +98,10 @@ extension TaskFilter {
             let none = MilestoneChoice(milestone: nil, taskCount: projectTasks.count { $0.milestone == nil })
             return ProjectChoice(id: id, code: code, taskCount: projectTasks.count, milestones: named + [none])
         }
-        .sorted { $0.code.localizedStandardCompare($1.code) == .orderedAscending }
+        .sorted { a, b in
+            if (a.taskCount > 0) != (b.taskCount > 0) { return a.taskCount > 0 }
+            return a.code.localizedStandardCompare(b.code) == .orderedAscending
+        }
     }
 
     /// Turning the filter on picks every listed project whole, so nothing disappears until

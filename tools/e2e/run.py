@@ -5,7 +5,9 @@ Each run starts tools/mock-dooray/server.py on a free loopback port, launches th
 inside the bundle with its debug console on stdin and stdout, and checks what the app
 prints against the scenario's expected.json, the same file the unit tests use.
 A scenario in FILTERS also gets a task filter through the console, and the run checks
-which tasks stay visible, the counts, and that the change sent no request.
+which tasks stay visible, the counts, and that the change sent no request. A scenario in
+CHOICES also checks the settings list: every project including one with no task, a filter
+that picks only that project, and the on-demand milestone load with its cache.
 
 The app gets a fake token through TODOORAY_CONFIG, which keeps its settings in memory, so
 a run never reads or writes the Keychain or the saved addresses.
@@ -45,6 +47,16 @@ FILTERS = {
         }},
         "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000005", "5000000000000000003"],
         "hiddenCount": 5,
+    },
+}
+
+CHOICES = {
+    "basic": {
+        "codes": ["APP", "FE", "OPS", "ADMIN"],
+        "emptyProject": "3000000000000000004",
+        "hiddenCount": 9,
+        "milestoneProject": "3000000000000000002",
+        "milestones": ["v1.0.0", "v1.0.1", "v1.1.0"],
     },
 }
 
@@ -158,6 +170,8 @@ def check(app, server, name, expected):
 
     if name in FILTERS:
         check_filter(app, server, state, FILTERS[name])
+    if name in CHOICES:
+        check_choices(app, server, CHOICES[name])
 
     expect(app.quit() == 0, "the app did not exit cleanly")
     return f"{state['kind']}, {len(state['agenda'])} tasks, title {title!r}, {placement}"
@@ -180,6 +194,42 @@ def check_filter(app, server, unfiltered, case):
     expect(state["visibleIDs"] == [row["id"] for row in unfiltered["agenda"]], "clearing the filter did not show every task")
     expect(state["header"]["openCount"] == unfiltered["header"]["openCount"], "header count did not come back")
     expect(len(server.get("/__mock/requests")) == requests, "changing the filter sent a request")
+
+
+def check_choices(app, server, case):
+    choices = app.ask("choices", "choices")["projects"]
+    expect([project["code"] for project in choices] == case["codes"], f"choices are {[p['code'] for p in choices]}")
+    empty = next(project for project in choices if project["id"] == case["emptyProject"])
+    expect(empty["taskCount"] == 0, f"the project with no task counts {empty['taskCount']}")
+    expect(empty["milestoneLoad"].get("state") is None, "milestones loaded before anyone asked")
+
+    requests = len(server.get("/__mock/requests"))
+    only_empty = {"projects": {empty["id"]: {"code": empty["code"]}}}
+    expect(app.ask("filter " + json.dumps(only_empty), "ok")["type"] == "ok", "the filter command failed")
+    state = app.ask("state", "state")
+    expect(state["visibleIDs"] == [], f"visible ids are {state['visibleIDs']}")
+    expect(state["header"]["openCount"] == 0, f"header count is {state['header']['openCount']}")
+    expect(state["hiddenCount"] == case["hiddenCount"], f"hidden count is {state['hiddenCount']}")
+    expect(app.ask("filter null", "ok")["type"] == "ok", "filter null failed")
+    expect(len(server.get("/__mock/requests")) == requests, "changing the filter sent a request")
+
+    project = case["milestoneProject"]
+    path = f"/project/v1/projects/{project}/milestones"
+    app.send(f"milestones {project}")
+    replies = [app.ask(f"milestones {project}", "milestones")]
+    replies.append(app.wait_for("the second milestones reply", lambda event: event["type"] == "milestones", 5))
+    for reply in replies:
+        expect(reply["load"].get("state") == "loaded", f"milestone load is {reply['load']}")
+        names = [milestone["name"] for milestone in reply["milestones"]]
+        expect(names == case["milestones"], f"milestones are {names}")
+    pages = [request for request in server.get("/__mock/requests") if request["path"] == path]
+    expect(len(pages) == 2, f"{len(pages)} milestone requests; two loads should share one two-page fetch")
+    expect(server.get("/__mock/unmatched") == [], "the milestone load sent a request no route matches")
+
+    listed = next(p for p in app.ask("choices", "choices")["projects"] if p["id"] == project)
+    expect(listed["milestoneLoad"].get("state") == "loaded", f"choices show the load as {listed['milestoneLoad']}")
+    names = [milestone["name"] for milestone in listed["milestones"]]
+    expect(names == case["milestones"] + ["단계 없음"], f"choices list milestones {names}")
 
 
 def run(bundle: Path, directory: Path, spec: dict) -> str:

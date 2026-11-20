@@ -14,6 +14,8 @@ import DooraySync
 ///     settings         {"type":"window","name":"settings","windowNumber":456,"frame":[x,y,w,h]}
 ///     now <ISO 8601>   {"type":"ok"}, and the render clock is frozen there
 ///     filter <json>    {"type":"ok"}, and the task filter is set; `filter null` clears it
+///     choices          {"type":"choices","projects":[…]}, the settings list with each project's milestone load
+///     milestones <id>  {"type":"milestones", ...} once the project's milestone load settles
 ///     quit             the process exits
 ///
 /// A state line is also printed whenever the app state or the menu bar form changes, so a
@@ -86,6 +88,20 @@ final class DebugConsole {
             }
             model.setFilter(filter)
             emit(Reply(type: "ok"))
+        case "choices":
+            emit(ChoicesEvent(model: model))
+        case "milestones":
+            guard words.count == 2 else {
+                emit(Reply(type: "error", message: "usage: milestones <projectId>"))
+                return
+            }
+            let projectID = words[1]
+            let load = model.loadMilestones(of: projectID)
+            Task { [weak self] in
+                await load.value
+                guard let self else { return }
+                self.emit(MilestonesEvent(projectID: projectID, load: self.model.milestoneLoads[projectID]))
+            }
         case "quit":
             NSApp.terminate(nil)
         default:
@@ -123,6 +139,77 @@ private struct WindowEvent: Encodable {
         self.name = name
         windowNumber = window?.windowNumber
         frame = window.map { [$0.frame.minX, $0.frame.minY, $0.frame.width, $0.frame.height] }
+    }
+}
+
+private struct LoadState: Encodable {
+    /// `loading`, `loaded`, `failed`, or nil when nothing was asked.
+    let state: String?
+    let error: String?
+
+    init(_ load: AppModel.MilestoneLoad?) {
+        switch load {
+        case .loading: (state, error) = ("loading", nil)
+        case .loaded: (state, error) = ("loaded", nil)
+        case .failed(let failure): (state, error) = ("failed", failure.name)
+        case nil: (state, error) = (nil, nil)
+        }
+    }
+}
+
+private struct ChoicesEvent: Encodable {
+    struct Project: Encodable {
+        let id: String
+        let code: String
+        let taskCount: Int
+        let milestoneLoad: LoadState
+        let milestones: [Item]
+    }
+
+    struct Item: Encodable {
+        /// nil is "단계 없음".
+        let id: String?
+        let name: String
+        let taskCount: Int
+    }
+
+    let type = "choices"
+    let projects: [Project]
+
+    @MainActor
+    init(model: AppModel) {
+        projects = model.filterChoices.map { project in
+            Project(
+                id: project.id,
+                code: project.code,
+                taskCount: project.taskCount,
+                milestoneLoad: LoadState(model.milestoneLoads[project.id]),
+                milestones: project.milestones.map { Item(id: $0.milestone?.id, name: $0.name, taskCount: $0.taskCount) }
+            )
+        }
+    }
+}
+
+private struct MilestonesEvent: Encodable {
+    struct Item: Encodable {
+        let id: String
+        let name: String
+    }
+
+    let type = "milestones"
+    let projectId: String
+    let load: LoadState
+    /// What the client returned, in its order. Empty unless loaded.
+    let milestones: [Item]
+
+    init(projectID: String, load: AppModel.MilestoneLoad?) {
+        projectId = projectID
+        self.load = LoadState(load)
+        if case .loaded(let loaded) = load {
+            milestones = loaded.map { Item(id: $0.id, name: $0.name) }
+        } else {
+            milestones = []
+        }
     }
 }
 

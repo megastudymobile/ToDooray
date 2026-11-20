@@ -14,6 +14,7 @@ final class SettingsWindowController {
     var visibleWindow: NSWindow? { window?.isVisible == true ? window : nil }
 
     func show() {
+        model.reloadMilestones()
         let window = self.window ?? makeWindow()
         self.window = window
         // An accessory app's text fields get key focus only once the app is active.
@@ -135,7 +136,7 @@ struct SettingsView: View {
 private struct FilterSection: View {
     let model: AppModel
 
-    private static let listHeight: CGFloat = 180
+    private static let listHeight: CGFloat = 300
 
     var body: some View {
         let choices = model.filterChoices
@@ -156,7 +157,9 @@ private struct FilterSection: View {
                         FilterList(
                             choices: choices,
                             filter: model.filter.isActive ? model.filter : .pickingEvery(choices),
-                            update: model.setFilter
+                            milestoneLoads: model.milestoneLoads,
+                            update: model.setFilter,
+                            loadMilestones: { model.loadMilestones(of: $0) }
                         )
                         .disabled(!model.filter.isActive)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -176,7 +179,9 @@ private struct FilterSection: View {
 private struct FilterList: View {
     let choices: [ProjectChoice]
     let filter: TaskFilter
+    let milestoneLoads: [String: AppModel.MilestoneLoad]
     let update: (TaskFilter) -> Void
+    let loadMilestones: (String) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -189,14 +194,18 @@ private struct FilterList: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Toggle("모든 단계", isOn: binding(selection.milestones == nil) {
                             $0.setEveryMilestone(of: project, picked: $1)
+                            if !$1 { loadMilestones(project.id) }
                         })
                         if let milestones = selection.milestones {
-                            ForEach(project.milestones, id: \.self) { item in
-                                Toggle(isOn: binding(milestones.admits(item.milestone)) {
-                                    $0.setMilestone(item.milestone, of: project, picked: $1)
-                                }) {
-                                    counted(item.name, item.taskCount)
+                            Group {
+                                ForEach(project.milestones, id: \.self) { item in
+                                    Toggle(isOn: binding(milestones.admits(item.milestone)) {
+                                        $0.setMilestone(item.milestone, of: project, picked: $1)
+                                    }) {
+                                        counted(item.name, item.taskCount)
+                                    }
                                 }
+                                loadStatus(of: project)
                             }
                             .padding(.leading, 20)
                         }
@@ -208,8 +217,23 @@ private struct FilterList: View {
         .toggleStyle(.checkbox)
     }
 
+    @ViewBuilder
+    private func loadStatus(of project: ProjectChoice) -> some View {
+        switch milestoneLoads[project.id] {
+        case .loading:
+            Text("단계 불러오는 중…").font(.callout).foregroundStyle(.secondary)
+        case .failed:
+            HStack {
+                Text("단계를 불러오지 못했어요").font(.callout).foregroundStyle(.secondary)
+                Button("다시 시도") { loadMilestones(project.id) }.controlSize(.small)
+            }
+        case .loaded, nil:
+            EmptyView()
+        }
+    }
+
     private func counted(_ name: String, _ count: Int) -> Text {
-        Text(name) + Text("  \(count)건").foregroundStyle(.secondary)
+        count == 0 ? Text(name) : Text(name) + Text("  \(count)건").foregroundStyle(.secondary)
     }
 
     private func binding(_ isOn: Bool, _ change: @escaping (inout TaskFilter, Bool) -> Void) -> Binding<Bool> {

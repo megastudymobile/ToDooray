@@ -4,8 +4,8 @@
 Each run starts tools/mock-dooray/server.py on a free loopback port, launches the binary
 inside the bundle with its debug console on stdin and stdout, and checks what the app
 prints against the scenario's expected.json, the same file the unit tests use.
-A scenario in FILTERS also gets a task filter through the console, and the run checks
-which tasks stay visible, the counts, and that the change sent no request. A scenario in
+A scenario in FILTERS also gets each of its task filters through the console, and the run
+checks which tasks stay visible, the counts, and that the change sent no request. A scenario in
 CHOICES also checks the settings list: every project including one with no task, a filter
 that picks only that project, and the on-demand milestone load with its cache.
 
@@ -38,16 +38,30 @@ MENU_BAR_TITLES = {
     "unauthorized": "토큰 확인",
     "server-error": "",
 }
+BASIC_PROJECTS = {
+    "3000000000000000001": {"code": "FE"},
+    "3000000000000000002": {"code": "APP", "milestones": {
+        "picked": {"7000000000000000001": "v1.0.0"}, "withoutMilestone": False}},
+}
 FILTERS = {
-    "basic": {
-        "filter": {"projects": {
-            "3000000000000000001": {"code": "FE"},
-            "3000000000000000002": {"code": "APP", "milestones": {
-                "picked": {"7000000000000000001": "v1.0.0"}, "withoutMilestone": False}},
-        }},
-        "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000005", "5000000000000000003"],
-        "hiddenCount": 5,
-    },
+    "basic": [
+        {
+            "filter": {"projects": BASIC_PROJECTS},
+            "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000005", "5000000000000000003"],
+            "hiddenCount": 5,
+        },
+        {
+            "filter": {"directOnly": True},
+            "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000007", "5000000000000000005",
+                           "5000000000000000008", "5000000000000000011", "5000000000000000009", "5000000000000000010"],
+            "hiddenCount": 1,
+        },
+        {
+            "filter": {"projects": BASIC_PROJECTS, "directOnly": True},
+            "visibleIDs": ["5000000000000000001", "5000000000000000004", "5000000000000000005"],
+            "hiddenCount": 6,
+        },
+    ],
 }
 
 CHOICES = {
@@ -168,8 +182,8 @@ def check(app, server, name, expected):
     expect(app.ask("state", "state")["panel"]["open"], "state does not report the open panel")
     expect(not app.ask("close", "panel")["open"], "the panel did not close")
 
-    if name in FILTERS:
-        check_filter(app, server, state, FILTERS[name])
+    for case in FILTERS.get(name, []):
+        check_filter(app, server, state, case)
     if name in CHOICES:
         check_choices(app, server, CHOICES[name])
 
@@ -184,6 +198,8 @@ def check_filter(app, server, unfiltered, case):
     expect(state["visibleIDs"] == case["visibleIDs"], f"visible ids are {state['visibleIDs']}")
     expect(state["header"]["openCount"] == len(case["visibleIDs"]), f"header count is {state['header']['openCount']}")
     expect(state["hiddenCount"] == case["hiddenCount"], f"hidden count is {state['hiddenCount']}")
+    expect(state["filter"].get("directOnly", False) == case["filter"].get("directOnly", False),
+           f"state reports directOnly as {state['filter'].get('directOnly')}")
     expect(len(state["agenda"]) == len(unfiltered["agenda"]), "the filter changed the agenda")
     expect(app.ask("open", "panel")["open"], "the panel did not open with a filter on")
     expect(not app.ask("close", "panel")["open"], "the panel did not close")

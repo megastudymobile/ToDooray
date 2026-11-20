@@ -7,8 +7,8 @@ private func loaded(_ tasks: [DoorayTask], fetchedAt: Date = noon) -> AppState {
     .loaded(Snapshot(tasks: tasks, fetchedAt: fetchedAt))
 }
 
-private func title(_ state: AppState, at now: Date = noon) -> StatusTitle {
-    StatusTitle.make(state: state, now: now, calendar: seoul)
+private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = .showAll) -> StatusTitle {
+    StatusTitle.make(state: state, filter: filter, now: now, calendar: seoul)
 }
 
 @Suite struct StatusTitleTests {
@@ -71,8 +71,8 @@ private func title(_ state: AppState, at now: Date = noon) -> StatusTitle {
 }
 
 @Suite struct PanelModelTests {
-    private func panel(_ state: AppState, at now: Date = noon) -> PanelModel {
-        PanelModel.make(state: state, now: now, calendar: seoul)
+    private func panel(_ state: AppState, at now: Date = noon, filter: TaskFilter = .showAll) -> PanelModel {
+        PanelModel.make(state: state, filter: filter, now: now, calendar: seoul)
     }
 
     @Test func headerShowsTheDayAndEveryOpenTask() throws {
@@ -181,6 +181,45 @@ private func title(_ state: AppState, at now: Date = noon) -> StatusTitle {
             #expect(model.header.openCount == nil)
             #expect(model.footer == nil)
         }
+    }
+
+    @Test func aFilterCountsOnlyVisibleTasksAndSaysHowManyItHides() throws {
+        let state = loaded(try basicTasks())
+        let filter = TaskFilter(projects: [
+            "3000000000000000002": .init(
+                code: "APP",
+                milestones: .init(picked: ["7000000000000000002": "v1.0.1"], withoutMilestone: true)
+            ),
+        ])
+        let model = panel(state, filter: filter)
+        #expect(model.header.openCount == 2)
+        guard case .tasks(let today, let next) = model.body else {
+            Issue.record("expected a task list")
+            return
+        }
+        #expect(today.map(\.id) == ["5000000000000000007"])
+        #expect(next?.task.id == "5000000000000000008")
+        #expect(model.footer == "방금 업데이트")
+        #expect(model.filterNote == "필터 적용 중 · 숨긴 업무 7건")
+        #expect(title(state, filter: filter) == StatusTitle(symbol: .normal, full: "푸시 알림 문구 수… · 23:59", compact: "2"))
+    }
+
+    @Test func aFilterThatHidesEverythingIsAllDoneButStillCountsTheHidden() throws {
+        let state = loaded(try basicTasks())
+        let filter = TaskFilter(projects: [:])
+        let model = panel(state, filter: filter)
+        #expect(model.body == .allDone)
+        #expect(model.header.openCount == 0)
+        #expect(model.filterNote == "필터 적용 중 · 숨긴 업무 9건")
+        #expect(title(state, filter: filter) == StatusTitle(symbol: .allDone, full: "할 일 없음", compact: ""))
+    }
+
+    @Test func theFilterNoteShowsOnlyWhileAFilterIsOn() throws {
+        let tasks = try basicTasks()
+        #expect(panel(loaded(tasks)).filterNote == nil)
+        let everything = TaskFilter.pickingEvery(TaskFilter.showAll.choices(for: tasks))
+        #expect(panel(loaded(tasks), filter: everything).filterNote == "필터 적용 중 · 숨긴 업무 0건")
+        #expect(panel(.loading, filter: everything).filterNote == nil)
     }
 
     @Test func anEmptyListIsAllDone() {

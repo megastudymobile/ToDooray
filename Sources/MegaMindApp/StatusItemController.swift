@@ -83,7 +83,7 @@ final class StatusItemController: NSObject {
     }
 
     private func render() {
-        let newTitle = StatusTitle.make(state: model.state, now: model.now, calendar: .current)
+        let newTitle = StatusTitle.make(state: model.state, filter: model.filter, now: model.now, calendar: .current)
         let retry = Date().timeIntervalSince(lastRetry) >= Self.retryInterval
         guard newTitle != title || retry else { return }
         title = newTitle

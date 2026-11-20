@@ -13,7 +13,7 @@ struct PanelView: View {
     static let shadowMargin: CGFloat = 24
 
     var body: some View {
-        let content = PanelModel.make(state: model.state, now: model.now, calendar: .current)
+        let content = PanelModel.make(state: model.state, filter: model.filter, now: model.now, calendar: .current)
         VStack(spacing: 10) {
             HeaderCard(header: content.header)
             BodyCard(content: content.body, footer: content.footer, perform: perform)

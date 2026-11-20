@@ -2,8 +2,8 @@ import AppKit
 import DooraySync
 import Observation
 
-/// Owns the app state and the sync lifecycle. It is the only writer of `state`, `now` and
-/// `settings`. Views, the status item, the panel and the debug console read them.
+/// Owns the app state and the sync lifecycle. It is the only writer of `state`, `now`,
+/// `settings` and `filter`. Views, the status item, the panel and the debug console read them.
 @MainActor
 @Observable
 final class AppModel {
@@ -12,6 +12,7 @@ final class AppModel {
     /// time zone or day changes.
     private(set) var now: Date
     private(set) var settings: Settings
+    private(set) var filter = TaskFilter.showAll
 
     @ObservationIgnored private let store: SettingsStore
     @ObservationIgnored private var clock: () -> Date

@@ -22,7 +22,8 @@ struct StatusTitle: Equatable {
     /// With a list, the title follows the next deadline today. An overdue task is not the
     /// title: the oldest one sorts first and would stay pinned to the menu bar for weeks.
     /// A stale list renders like a fresh one, since it is still the best answer available.
-    static func make(state: AppState, now: Date, calendar: Calendar) -> StatusTitle {
+    /// Only the tasks the filter shows count.
+    static func make(state: AppState, filter: TaskFilter, now: Date, calendar: Calendar) -> StatusTitle {
         guard let snapshot = state.snapshot else {
             switch state {
             case .needsSetup: return StatusTitle(symbol: .attention, full: Copy.titleNeedsSetup, compact: "")
@@ -32,7 +33,7 @@ struct StatusTitle: Equatable {
             }
         }
 
-        let items = Agenda.items(snapshot.tasks, now: now, calendar: calendar)
+        let items = Agenda.items(filter.apply(snapshot.tasks).visible, now: now, calendar: calendar)
         guard !items.isEmpty else {
             return StatusTitle(symbol: .allDone, full: Copy.titleNothingOpen, compact: "")
         }
@@ -86,7 +87,7 @@ struct PanelModel: Equatable {
     struct Header: Equatable, Encodable {
         var weekday: String
         var date: String
-        /// nil when there is no list to count.
+        /// The tasks the filter shows. nil when there is no list to count.
         var openCount: Int?
     }
 
@@ -120,22 +121,29 @@ struct PanelModel: Equatable {
     var header: Header
     var body: Body
     var footer: String?
+    /// Tasks the filter hides. nil when no filter is on or there is no list.
+    var hiddenCount: Int?
 
-    static func make(state: AppState, now: Date, calendar: Calendar) -> PanelModel {
+    /// The panel never hides work silently: with a filter on, this line says how much it hides.
+    var filterNote: String? { hiddenCount.map(Copy.filterNote) }
+
+    static func make(state: AppState, filter: TaskFilter, now: Date, calendar: Calendar) -> PanelModel {
+        let filtered = state.snapshot.map { filter.apply($0.tasks) }
         let header = Header(
             weekday: Format.weekday(now, calendar),
             date: Format.longDate(now, calendar),
-            openCount: state.snapshot?.tasks.count
+            openCount: filtered?.visible.count
         )
-        guard let snapshot = state.snapshot else {
+        guard let snapshot = state.snapshot, let filtered else {
             let body: Body = switch state {
             case .needsSetup: .needsSetup
             case .authFailed: .authFailed
             case .failed(let error): .failed(message: Copy.failure(error))
             case .loading, .loaded, .stale: .loading
             }
-            return PanelModel(header: header, body: body, footer: nil)
+            return PanelModel(header: header, body: body, footer: nil, hiddenCount: nil)
         }
+        let hiddenCount = filter.isActive ? filtered.hiddenCount : nil
 
         let footer: String = if case .stale(_, let error) = state {
             Copy.staleFooter(reason: Copy.failure(error), fetchedAt: Format.time(snapshot.fetchedAt, calendar))
@@ -143,9 +151,9 @@ struct PanelModel: Equatable {
             Copy.updated(Format.ago(snapshot.fetchedAt, now: now))
         }
 
-        let items = Agenda.items(snapshot.tasks, now: now, calendar: calendar)
+        let items = Agenda.items(filtered.visible, now: now, calendar: calendar)
         guard !items.isEmpty else {
-            return PanelModel(header: header, body: .allDone, footer: footer)
+            return PanelModel(header: header, body: .allDone, footer: footer, hiddenCount: hiddenCount)
         }
         let upcoming = items.filter { $0.urgency == .upcoming }
         let today = items.filter { $0.urgency != .upcoming }.map { item in
@@ -166,7 +174,7 @@ struct PanelModel: Equatable {
                 )
             }
         }
-        return PanelModel(header: header, body: .tasks(today: today, next: next), footer: footer)
+        return PanelModel(header: header, body: .tasks(today: today, next: next), footer: footer, hiddenCount: hiddenCount)
     }
 }
 
@@ -194,6 +202,9 @@ enum Copy {
     static let openDooray = "Dooray"
     static let settings = "설정"
     static let quit = "종료"
+
+    static func filterNote(hidden: Int) -> String { "필터 적용 중 · 숨긴 업무 \(hidden)건" }
+    static let noMilestone = "단계 없음"
 
     static func updated(_ ago: String) -> String { "\(ago) 업데이트" }
     static func staleFooter(reason: String, fetchedAt: String) -> String {

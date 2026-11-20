@@ -191,7 +191,7 @@ private struct DebugState: Encodable {
         now = model.now
         fetchedAt = state.snapshot?.fetchedAt
 
-        let title = StatusTitle.make(state: state, now: model.now, calendar: calendar)
+        let title = StatusTitle.make(state: state, filter: model.filter, now: model.now, calendar: calendar)
         menuBar = MenuBar(
             full: title.full,
             compact: title.compact,
@@ -201,7 +201,7 @@ private struct DebugState: Encodable {
             frame: statusItem.anchorWindow.map { [$0.frame.minX, $0.frame.minY, $0.frame.width, $0.frame.height] }
         )
 
-        let content = PanelModel.make(state: state, now: model.now, calendar: calendar)
+        let content = PanelModel.make(state: state, filter: model.filter, now: model.now, calendar: calendar)
         header = content.header
         footer = content.footer
         if case .tasks(let today, let upcoming) = content.body {

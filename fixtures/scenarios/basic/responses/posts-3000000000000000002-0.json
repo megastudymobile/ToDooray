@@ -13,6 +13,11 @@
         "code": "APP",
         "projectCategoryId": null
       },
+      "milestone": {
+        "id": "7000000000000000001",
+        "name": "v1.0.0",
+        "closedAt": null
+      },
       "taskNumber": "APP/88",
       "closed": false,
       "createdAt": "2026-11-10T01:00:00Z",
@@ -59,6 +64,11 @@
         "id": "3000000000000000002",
         "code": "APP",
         "projectCategoryId": null
+      },
+      "milestone": {
+        "id": "7000000000000000001",
+        "name": "v1.0.0",
+        "closedAt": null
       },
       "taskNumber": "APP/91",
       "closed": false,
@@ -107,6 +117,11 @@
         "code": "APP",
         "projectCategoryId": null
       },
+      "milestone": {
+        "id": "7000000000000000001",
+        "name": "v1.0.0",
+        "closedAt": null
+      },
       "taskNumber": "APP/95",
       "closed": false,
       "createdAt": "2026-11-10T01:00:00Z",
@@ -152,6 +167,11 @@
         "id": "3000000000000000002",
         "code": "APP",
         "projectCategoryId": null
+      },
+      "milestone": {
+        "id": "7000000000000000002",
+        "name": "v1.0.1",
+        "closedAt": null
       },
       "taskNumber": "APP/97",
       "closed": false,

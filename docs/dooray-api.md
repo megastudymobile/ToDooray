@@ -39,6 +39,7 @@ MegaMind가 쓰는 Dooray 공식 API와 업무 선별 규칙을 적는다. macOS
 | `id` | 업무 ID. 숫자로 된 문자열이다. |
 | `subject` | 제목 |
 | `project.id`, `project.code` | 프로젝트 |
+| `milestone.id`, `milestone.name` | 단계(마일스톤). 단계가 없으면 필드가 없다. 필터에만 쓴다. |
 | `number` | 프로젝트 안의 업무 번호. 정수다. |
 | `priority` | `highest`, `high`, `normal`, `low`, `none` |
 | `dueDate` | 마감 시각. UTC ISO 8601 문자열이다. 마감이 없으면 필드가 없다. |

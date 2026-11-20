@@ -33,6 +33,15 @@ import Testing
         }
     }
 
+    @Test func postsCarryTheirMilestoneOrNone() async throws {
+        let tasks = try await ScenarioHarness(try Scenario.named("basic")).fetch().get()
+        let milestones = Dictionary(uniqueKeysWithValues: tasks.map { ($0.key, $0.milestone) })
+        #expect(milestones["APP-88"] == Milestone(id: "7000000000000000001", name: "v1.0.0"))
+        #expect(milestones["APP-97"] == Milestone(id: "7000000000000000002", name: "v1.0.1"))
+        #expect(milestones["APP-99"] == .some(nil))
+        #expect(milestones["FE-1203"] == .some(nil))
+    }
+
     @Test func rateLimitWaitsRetryAfterThenBacksOff() async throws {
         let harness = ScenarioHarness(try Scenario.named("rate-limited"), maxConcurrentRequests: 1)
         _ = try await harness.fetch().get()

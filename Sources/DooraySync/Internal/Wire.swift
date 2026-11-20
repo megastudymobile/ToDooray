@@ -39,6 +39,11 @@ struct ProjectDTO: Decodable, Sendable {
     let code: String
 }
 
+struct MilestoneDTO: Decodable, Sendable {
+    let id: String
+    let name: String
+}
+
 struct WorkflowDTO: Decodable, Sendable {
     let id: WorkflowID
     let workflowClass: WorkflowClass?
@@ -79,6 +84,7 @@ struct PostDTO: Sendable {
     let id: String
     let subject: String
     let project: ProjectDTO
+    let milestone: MilestoneDTO?
     let number: Int
     let priority: String?
     let dueDate: String?
@@ -89,7 +95,7 @@ struct PostDTO: Sendable {
 
 extension PostDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
-        case id, subject, project, number, priority, dueDate, workflowClass, updatedAt, users
+        case id, subject, project, milestone, number, priority, dueDate, workflowClass, updatedAt, users
     }
 
     private struct Users: Decodable {
@@ -101,6 +107,7 @@ extension PostDTO: Decodable {
         id = try container.decode(String.self, forKey: .id)
         subject = try container.decode(String.self, forKey: .subject)
         project = try container.decode(ProjectDTO.self, forKey: .project)
+        milestone = try container.decodeIfPresent(MilestoneDTO.self, forKey: .milestone)
         number = try container.decode(Int.self, forKey: .number)
         priority = try container.decodeIfPresent(String.self, forKey: .priority)
         dueDate = try container.decodeIfPresent(String.self, forKey: .dueDate)
@@ -196,6 +203,7 @@ extension DoorayTask {
             id: post.id,
             projectID: post.project.id,
             projectCode: post.project.code,
+            milestone: post.milestone.map { Milestone(id: $0.id, name: $0.name) },
             number: post.number,
             subject: post.subject,
             priority: Priority(wire: post.priority),

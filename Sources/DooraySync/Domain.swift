@@ -7,6 +7,8 @@ public struct DoorayTask: Sendable, Hashable, Identifiable {
     public let id: String
     public let projectID: String
     public let projectCode: String
+    /// Dooray's web UI calls this "단계".
+    public let milestone: Milestone?
     public let number: Int
     public let subject: String
     public let priority: Priority
@@ -20,6 +22,16 @@ public struct DoorayTask: Sendable, Hashable, Identifiable {
     /// `{tenant}/task/{projectId}/{postId}`.
     public func webURL(tenant: URL) -> URL {
         tenant.appending(path: "task").appending(path: projectID).appending(path: id)
+    }
+}
+
+public struct Milestone: Sendable, Hashable {
+    public let id: String
+    public let name: String
+
+    public init(id: String, name: String) {
+        self.id = id
+        self.name = name
     }
 }
 

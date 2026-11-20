@@ -15,6 +15,8 @@ func at(_ iso: String) -> Date {
 
 func task(
     _ id: String,
+    project: (id: String, code: String) = ("101", "FE"),
+    milestone: Milestone? = nil,
     subject: String = "업무",
     due: String? = nil,
     priority: Priority = .normal,
@@ -22,8 +24,9 @@ func task(
 ) -> DoorayTask {
     DoorayTask(
         id: id,
-        projectID: "101",
-        projectCode: "FE",
+        projectID: project.id,
+        projectCode: project.code,
+        milestone: milestone,
         number: Int(id) ?? 0,
         subject: subject,
         priority: priority,

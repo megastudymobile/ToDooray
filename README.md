@@ -10,9 +10,9 @@ macOS 14 이상에서 동작합니다. 화면의 업무는 예시 데이터입�
 
 ## 설치하기
 
-1. [Releases](https://github.com/megastudymobile/ToDooray/releases)에서 최신 `ToDooray-<버전>.zip`을 내려받습니다.
-2. zip을 풀고 `ToDooray.app`을 응용 프로그램 폴더로 옮깁니다.
-3. `ToDooray.app`을 엽니다. 처음 실행하면 설정 창이 열립니다.
+1. [최신 릴리스](https://github.com/megastudymobile/ToDooray/releases/latest)에서 `ToDooray-<버전>.dmg`를 내려받습니다.
+2. DMG를 열고, 창 안의 `ToDooray`를 `Applications` 폴더로 끌어다 놓습니다.
+3. 응용 프로그램 폴더에서 ToDooray를 엽니다. 처음 실행하면 설정 창이 열립니다.
 
 ## Dooray에 연결하기
 
@@ -56,7 +56,13 @@ macOS 14 이상에서 동작합니다. 화면의 업무는 예시 데이터입�
 
 ## 업데이트하기
 
-새 버전의 zip을 내려받아 응용 프로그램 폴더의 `ToDooray.app`을 바꿔 넣습니다. 토큰과 설정은 그대로 남습니다.
+새 버전이 나오면 패널 아래 줄에 **업데이트** 버튼이 나옵니다. 설정 창 맨 아래에도 나옵니다. 누르면 새 DMG를 내려받습니다.
+
+1. 패널의 전원 버튼으로 ToDooray를 끕니다.
+2. 내려받은 DMG를 열고 `ToDooray`를 `Applications`로 끌어다 놓습니다. 바꿀지 물으면 **대치**를 누릅니다.
+3. ToDooray를 다시 엽니다.
+
+토큰과 설정은 그대로 남습니다. 앱은 GitHub에서 최신 릴리스를 6시간마다 확인합니다. 1.1.0보다 오래된 버전에는 이 버튼이 없으니, 그 버전을 쓰고 있다면 한 번은 직접 내려받아 바꿔 주세요.
 
 ## 개발
 

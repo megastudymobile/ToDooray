@@ -15,13 +15,13 @@
 | `make e2e` | 디버그 빌드를 로컬 모의 서버에 붙여 시나리오를 확인 |
 | `make mock SCENARIO=basic` | `fixtures/scenarios/basic`을 `127.0.0.1:8765`에서 제공. 토큰은 `test-token` |
 | `make release` | 배포용 빌드. 디버그 콘솔이 빠짐 |
-| `make dist` | 배포용 빌드를 서명, 공증해 `build/dist/ToDooray-<버전>.zip`으로 만듦 |
+| `make dist` | 배포용 빌드를 서명, 공증해 `build/dist/ToDooray-<버전>.dmg`로 만듦 |
 
 디버그 빌드의 번들 ID는 `com.megastudymobile.ToDooray.debug`입니다. 그래서 설치한 배포판과 키체인 항목, 설정이 섞이지 않습니다.
 
 ## 배포판 만들기
 
-`make dist`는 Developer ID 인증서로 서명하고 Apple에 공증을 받습니다. 공증을 받은 앱은 팀원의 Mac에서 경고 없이 열립니다.
+`make dist`는 앱을 Developer ID 인증서로 서명하고 Apple에 공증을 받습니다. 그다음 앱과 `Applications` 바로가기를 담은 DMG를 만들어 DMG도 서명하고 공증합니다. 공증을 두 번 받으므로 보통 몇 분이 걸립니다. 공증을 받은 앱은 팀원의 Mac에서 경고 없이 열립니다.
 
 ### 처음 한 번: 공증 자격 증명 등록
 
@@ -37,8 +37,8 @@ xcrun notarytool store-credentials todooray-notary --apple-id "<Apple ID 이메�
 ### 릴리스할 때마다
 
 1. `App/project.yml`의 `MARKETING_VERSION`을 올리고 `CURRENT_PROJECT_VERSION`을 1 늘립니다.
-2. `make dist`를 실행합니다. 공증에는 보통 몇 분이 걸립니다.
-3. `build/dist/ToDooray-<버전>.zip`을 GitHub Releases에 `v<버전>` 태그로 올립니다.
+2. `make dist`를 실행합니다.
+3. `build/dist/ToDooray-<버전>.dmg`를 GitHub Releases에 `v<버전>` 태그로 올립니다. 태그는 `v` 뒤에 `주.부.수` 세 숫자를 씁니다. 앱의 업데이트 확인이 이 태그와 `.dmg` 파일을 읽습니다.
 
 환경 변수로 기본값을 바꿀 수 있습니다.
 
@@ -46,10 +46,22 @@ xcrun notarytool store-credentials todooray-notary --apple-id "<Apple ID 이메�
 | --- | --- | --- |
 | `TODOORAY_SIGN_IDENTITY` | `Developer ID Application` | `codesign`에 넘기는 인증서 이름 |
 | `TODOORAY_NOTARY_PROFILE` | `todooray-notary` | `notarytool` 자격 증명 이름 |
-| `SKIP_NOTARIZE` | 없음 | `1`이면 서명과 압축만 하고 공증은 건너뜀 |
+| `SKIP_NOTARIZE` | 없음 | `1`이면 서명과 DMG 만들기만 하고 공증은 건너뜀 |
 
 번들 ID `com.megastudymobile.ToDooray`는 바꾸지 않습니다. 팀원의 키체인 항목, 로그인 항목, 설정이 이 ID에 묶여 있어서, 바꾸면 모두 다시 설정해야 합니다.
 
 ## 디버그 콘솔
 
 디버그 빌드는 `TODOORAY_CONSOLE=1`로 실행하면 표준 입력으로 명령을 받고 JSON 한 줄씩 답합니다. 명령 목록은 `Sources/ToDoorayApp/DebugConsole.swift` 맨 위에 있습니다. `TODOORAY_CONFIG=<파일>`을 주면 키체인과 설정 대신 그 파일을 읽습니다. 실제 토큰 없이 모의 서버로 확인할 때 씁니다.
+
+디버그 빌드에서만 쓰는 변수는 다음과 같습니다. 배포용 빌드에는 들어가지 않습니다.
+
+| 변수 | 뜻 |
+| --- | --- |
+| `TODOORAY_CONSOLE=1` | 디버그 콘솔을 켬 |
+| `TODOORAY_CONFIG=<파일>` | 키체인과 설정 대신 읽을 JSON. `apiBase`, `webBase`, `token`, `filter`, `releasesURL`을 받음 |
+| `TODOORAY_NOW=<ISO 8601>` | 화면에 쓰는 시각을 고정 |
+| `TODOORAY_VERSION=<주.부.수>` | 업데이트 확인에 쓰는 현재 버전을 바꿈 |
+| `TODOORAY_RELEASES_URL=<주소>` | 업데이트 확인이 읽을 최신 릴리스 주소. `make mock`은 `/releases/latest`에서 가짜 릴리스를 줌 |
+
+`TODOORAY_CONFIG`를 주고 `releasesURL`과 `TODOORAY_RELEASES_URL`이 모두 없으면 업데이트 확인을 하지 않습니다. 테스트가 실수로 GitHub를 부르지 않게 하려는 것입니다.

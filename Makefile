@@ -17,7 +17,7 @@ app: project     ## Debug bundle, with the debug console
 release: project ## Release bundle, without the debug console
 	$(XCODEBUILD) -configuration Release build
 
-dist:            ## signed, notarized zip in build/dist; see tools/dist.sh
+dist:            ## signed, notarized dmg in build/dist; see tools/dist.sh
 	tools/dist.sh
 
 run: app         ## run in the foreground with the debug console on stdin and stdout

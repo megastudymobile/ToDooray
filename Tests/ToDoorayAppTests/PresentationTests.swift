@@ -80,30 +80,48 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
         #expect(header == PanelModel.Header(weekday: "목요일", date: "2026년 11월 19일", openCount: 9))
     }
 
-    @Test func todayListHoldsEverythingButUpcomingInContractOrder() throws {
+    @Test func todayListHoldsEverythingButUpcomingTasksNotStartedInContractOrder() throws {
         guard case .tasks(let today, let next) = panel(loaded(try basicTasks())).body else {
             Issue.record("expected a task list")
             return
         }
         #expect(today.map(\.id) == [
-            "5000000000000000001", "5000000000000000004", "5000000000000000007",
+            "5000000000000000001", "5000000000000000004", "5000000000000000007", "5000000000000000005",
             "5000000000000000003", "5000000000000000011", "5000000000000000009", "5000000000000000010",
         ])
         #expect(today.map(\.detail) == [
             "FE-1203 · 마감 지남 · 어제 18:00",
             "APP-88 · 오늘 18:00 · 6시간 남음",
             "APP-97 · 오늘 23:59 · 11시간 남음",
+            "APP-91 · 내일 10:00",
             "FE-1215 · 마감 없음",
             "OPS-17 · 마감 없음",
             "OPS-12 · 마감 없음",
             "OPS-15 · 마감 없음",
         ])
         #expect(today.first?.subject == "결제 모듈 오류 수정")
-        #expect(today.map(\.urgency) == [.overdue, .dueToday, .dueToday, .noDue, .noDue, .noDue, .noDue])
+        #expect(today.map(\.urgency) == [.overdue, .dueToday, .dueToday, .upcoming, .noDue, .noDue, .noDue, .noDue])
 
-        #expect(next?.task.id == "5000000000000000005")
-        #expect(next?.subject == "API 문서 정리")
-        #expect(next?.when == "내일 10:00")
+        #expect(next?.task.id == "5000000000000000008")
+        #expect(next?.subject == "온보딩 화면 개선")
+        #expect(next?.when == "11월 25일 (수) 18:00")
+        #expect(next?.moreCount == 0)
+    }
+
+    @Test func workInProgressStaysInTodayWhateverItsDeadline() {
+        let state = loaded([
+            task("1", due: "2026-11-20T23:59:00+09:00", state: .working),
+            task("2", due: "2026-11-20T09:00:00+09:00"),
+            task("3", due: "2026-11-21T09:00:00+09:00"),
+            task("4", state: .working),
+        ])
+        guard case .tasks(let today, let next) = panel(state).body else {
+            Issue.record("expected a task list")
+            return
+        }
+        #expect(today.map(\.id) == ["1", "4"])
+        #expect(today.first?.detail == "FE-1 · 내일 23:59")
+        #expect(next?.task.id == "2")
         #expect(next?.moreCount == 1)
     }
 

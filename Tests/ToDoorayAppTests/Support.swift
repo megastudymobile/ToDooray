@@ -21,7 +21,8 @@ func task(
     subject: String = "업무",
     due: String? = nil,
     priority: Priority = .normal,
-    updated: String = "2026-11-18T10:00:00+09:00"
+    updated: String = "2026-11-18T10:00:00+09:00",
+    state: OpenState = .registered
 ) -> DoorayTask {
     DoorayTask(
         id: id,
@@ -33,7 +34,7 @@ func task(
         priority: priority,
         dueDate: due.map(at),
         updatedAt: at(updated),
-        state: .registered,
+        state: state,
         isDirectlyAssigned: direct
     )
 }

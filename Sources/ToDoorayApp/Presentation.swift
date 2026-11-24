@@ -154,8 +154,10 @@ struct PanelModel: Equatable {
         guard !items.isEmpty else {
             return PanelModel(header: header, body: .allDone, footer: footer, hiddenCount: hiddenCount)
         }
-        let upcoming = items.filter { $0.urgency == .upcoming }
-        let today = items.filter { $0.urgency != .upcoming }.map { item in
+        // Work already in progress belongs to today even when its deadline is later.
+        let belongsToday = { (item: AgendaItem) in item.urgency != .upcoming || item.task.state == .working }
+        let upcoming = items.filter { !belongsToday($0) }
+        let today = items.filter(belongsToday).map { item in
             Row(
                 task: item.task,
                 urgency: item.urgency,

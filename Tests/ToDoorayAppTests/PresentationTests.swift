@@ -14,13 +14,13 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
 @Suite struct StatusTitleTests {
     @Test func showsTheEarliestDeadlineLeftToday() throws {
         let state = loaded(try basicTasks())
-        #expect(title(state) == StatusTitle(symbol: .normal, full: "디자인 리뷰 반영 · 18:00", compact: "9"))
+        #expect(title(state) == StatusTitle(symbol: .normal, full: "디자인 리뷰 반영", compact: "9"))
     }
 
     @Test func followsTheClockWithoutARefetch() throws {
         let state = loaded(try basicTasks())
-        #expect(title(state, at: at("2026-11-19T18:01:00+09:00")).full == "푸시 알림 문구 수… · 23:59")
-        #expect(title(state, at: at("2026-11-20T00:30:00+09:00")).full == "API 문서 정리 · 10:00")
+        #expect(title(state, at: at("2026-11-19T18:01:00+09:00")).full == "푸시 알림 문구 수정")
+        #expect(title(state, at: at("2026-11-20T00:30:00+09:00")).full == "API 문서 정리")
     }
 
     @Test func countsOverdueTasksWhenNothingElseIsDueToday() {
@@ -55,18 +55,18 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
     }
 
     @Test func capsTheSubjectByDisplayWidth() {
-        #expect(TitleText.capped("abcdefghijklmnopqr") == "abcdefghijklmnopqr")
-        #expect(TitleText.capped("abcdefghijklmnopqrs") == "abcdefghijklmnopq…")
-        #expect(TitleText.capped("가나다라마바사아자") == "가나다라마바사아자")
-        #expect(TitleText.capped("가나다라마바사아자차") == "가나다라마바사아…")
-        #expect(TitleText.capped("API 문서 정리 및 배포 확인") == "API 문서 정리 및…")
+        #expect(TitleText.capped("abcdefghijklmnopqrstuvwxyz") == "abcdefghijklmnopqrstuvwxyz")
+        #expect(TitleText.capped("abcdefghijklmnopqrstuvwxyz0") == "abcdefghijklmnopqrstuvwxy…")
+        #expect(TitleText.capped("가나다라마바사아자차카타파") == "가나다라마바사아자차카타파")
+        #expect(TitleText.capped("가나다라마바사아자차카타파하") == "가나다라마바사아자차카타…")
+        #expect(TitleText.capped("API 문서 정리 및 배포 일정 확인") == "API 문서 정리 및 배포 일…")
         #expect(TitleText.capped("릴리스\n노트   검토 ") == "릴리스 노트 검토")
     }
 
     @Test func neverSplitsAGraphemeWhenCapping() {
         let family = "👨‍👩‍👧‍👦"
-        let capped = TitleText.capped(String(repeating: family, count: 10))
-        #expect(capped == String(repeating: family, count: 8) + "…")
+        let capped = TitleText.capped(String(repeating: family, count: 14))
+        #expect(capped == String(repeating: family, count: 12) + "…")
     }
 }
 
@@ -219,7 +219,7 @@ private func title(_ state: AppState, at now: Date = noon, filter: TaskFilter = 
         #expect(next?.task.id == "5000000000000000008")
         #expect(model.footer == "방금 업데이트")
         #expect(model.filterNote == "필터 적용 중 · 숨긴 업무 7건")
-        #expect(title(state, filter: filter) == StatusTitle(symbol: .normal, full: "푸시 알림 문구 수… · 23:59", compact: "2"))
+        #expect(title(state, filter: filter) == StatusTitle(symbol: .normal, full: "푸시 알림 문구 수정", compact: "2"))
     }
 
     @Test func aFilterThatHidesEverythingIsAllDoneButStillCountsTheHidden() throws {

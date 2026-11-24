@@ -37,9 +37,8 @@ struct StatusTitle: Equatable {
             return StatusTitle(symbol: .allDone, full: Copy.titleNothingOpen, compact: "")
         }
         let count = String(items.count)
-        if let next = items.first(where: { $0.urgency == .dueToday }), let due = next.task.dueDate {
-            let full = "\(TitleText.capped(next.task.subject)) · \(Format.time(due, calendar))"
-            return StatusTitle(symbol: .normal, full: full, compact: count)
+        if let next = items.first(where: { $0.urgency == .dueToday }) {
+            return StatusTitle(symbol: .normal, full: TitleText.capped(next.task.subject), compact: count)
         }
         let overdue = items.count { $0.urgency == .overdue }
         let full = overdue > 0 ? Copy.titleOverdue(overdue) : Copy.titleOpen(items.count)
@@ -48,9 +47,10 @@ struct StatusTitle: Equatable {
 }
 
 enum TitleText {
-    /// Hangul, CJK and fullwidth characters count 2 and everything else 1. Eighteen units is
-    /// about nine Hangul syllables, which keeps the whole item under roughly 190 pt.
-    static let maxUnits = 18
+    /// Hangul, CJK and fullwidth characters count 2 and everything else 1. Twenty-six units is
+    /// about thirteen Hangul syllables, the width the subject and its due time used to share,
+    /// so the item stays under roughly 190 pt on a crowded menu bar.
+    static let maxUnits = 26
 
     static func capped(_ text: String, maxUnits: Int = maxUnits) -> String {
         let collapsed = text.split(whereSeparator: \.isWhitespace).joined(separator: " ")

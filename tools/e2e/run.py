@@ -34,8 +34,8 @@ SCENARIOS = ROOT / "fixtures" / "scenarios"
 SERVER = ROOT / "tools" / "mock-dooray" / "server.py"
 SETTLED = {"loaded", "failed", "authFailed"}
 MENU_BAR_TITLES = {
-    "basic": "디자인 리뷰 반영 · 18:00",
-    "rate-limited": "디자인 리뷰 반영 · 18:00",
+    "basic": "디자인 리뷰 반영",
+    "rate-limited": "디자인 리뷰 반영",
     "empty": "할 일 없음",
     "unauthorized": "토큰 확인",
     "server-error": "",
